@@ -1,0 +1,181 @@
+origin file: generate_LFR_benchmark.py
+Next block: 1.txt
+
+"""
+generate LFR benchmark
+@auth: Yu-Hsiang Fu
+@date: 2016/02/29
+"""
+# ###
+# 1.Import packages
+# ###
+import networkx as nx
+import numpy as np
+import os
+import os.path
+import sys
+# import time
+
+# Import modules
+import util.handler.edgelist_handler as eh
+
+
+# ###
+# 2.Define functions
+# ###
+def create_network(edge_dict):
+    G = nx.parse_edgelist(edge_dict, nodetype=int)
+    G.remove_edges_from(G.selfloop_edges())
+    return G.to_undirected()
+
+
+# ###
+# 3.main function
+# ###
+def generate_LFR_benchmark():
+    # constants
+    folder_root   = os.getcwd() + '\\'
+    # folder_image  = 'image\\'
+    folder_image  = 'program\\'
+    folder_LFR    = 'LFR_benchmark\\'
+    file_main_exe = 'main.exe'
+
+    # ###
+    # LFR parameters
+    # ###
+    num_node      = '50000'  # number of nodes
+    exp_degree    = '2'      # exponent for the degree distributionon
+    exp_community = '1'      # exponent for the community size distribution
+    mix_parameter = '0.1'    # mu, mixing parameter
+    #
+    avg_degree    = '40'     # k, average degree
+    max_degree    = '100'    # max_k, maximum degree
+    #
+    min_comm_size = '50'     # min_c, minimum for the community sizes (optional; just comment this line, if you wish)
+    max_comm_size = '100'    # max_c, maximum for the community sizes (optional; just comment this line, if you wish)
+    #
+    #
+    # mu_list: 0.1~0.8, step 0.1
+    # mu_list = [str(u) for u in np.arange(0.1, 0.9, 0.1)]
+    #
+    # mu_list: 0.1~0.8, step 0.05
+    # mu_list = ['0.1', '0.15', '0.2', '0.25', '0.3', '0.35', '0.4', '0.45',
+    #            '0.5', '0.55', '0.6', '0.65', '0.7', '0.75', '0.8']
+    # mu_list = ['0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8']
+    mu_list = ['0.15', '0.25', '0.35', '0.45', '0.55', '0.65', '0.75']
+    print(mu_list)
+
+    # number of networks to crate
+    num_network = 30
+
+    # ###
+    # create networks: num_network
+    # ###
+    for mu in mu_list:
+        net_counter = 1
+        mix_parameter = mu
+
+        # write parameters to the file: parameter.dat
+        path_param = folder_root + folder_image + folder_LFR + 'parameters.dat'
+
+        if os.path.isfile(path_param) and os.access(path_param, os.R_OK):
+            with open(path_param, mode="w", encoding='utf8') as f:
+                """
+                Using python to write parameters to the *.dat file could case
+                some input problems of LFR_benchmark, i.e. main.cpp. It seems
+                like the code "in.seekg(sp);" causing the problem. Hence, some
+                duplicate f.write lines are added to fit the input patten of
+                main.cpp
+
+                Beside, can not avg_degree equal to max_degree? Is it making
+                the main.cpp program doesn't work?
+                """
+                f.write(num_node      + '  \n')
+                f.write(num_node      + '  \n')
+                f.write(avg_degree    + '  \n')
+                f.write(max_degree    + '  \n')
+                f.write(max_degree    + '  \n')
+
+                f.write(exp_degree    + '  \n')
+                f.write(exp_degree    + '  \n')
+                f.write(exp_community + '  \n')
+                f.write(mix_parameter + '  \n')
+                f.write(min_comm_size + '  \n')
+                f.write(max_comm_size)
+                f.flush()
+                f.close()
+
+        # create network of mu
+        while (True):
+            print('\n============================================================')
+            print(' Generate a LFR_benchmark network: ' + str(net_counter))
+            print('============================================================\n')
+
+            # ###
+            # step1: execute "main.exe" to generate a LFR_network
+            # ###
+            print('1.Execute the program to generate a LFR network.')
+
+            # change the directory to the destination folder
+            folder_path_FLR = ''
+            folder_path_FLR = folder_root + folder_image + folder_LFR
+            os.chdir(os.path.abspath(folder_path_FLR))
+
+            # run the "main.exe" program
+            os.system(file_main_exe)
+
+            # ###
+            # step2: check whether there is only one GCC in the LFR_benchmark
+            # ###
+            print('2.Check whether there is only one GCC in the network.')
+            folder_output = 'output\\'
+            file_network  = 'network.txt'
+
+            # read network file
+            file_path = folder_path_FLR + folder_output + file_network
+            G = create_network(eh.read_edgelist(file_path))
+
+            # check the number of GCC
+            if len(list(nx.connected_component_subgraphs(G))) == 1:
+                # ###
+                # step3: copy the network file to another folder
+                # ###
+                print("3.copy network files to another folder.")
+                folder_networks = 'networks\\'
+
+                # check and create new folder
+                if os.path.isdir(folder_path_FLR + folder_networks):
+                    pass
+                else:
+                    print('[mkdir] create a new folder.')
+                    os.system('mkdir networks')
+
+                # copy network files to "networks" folder
+                file_community = 'community.txt'
+                file_statistics = 'statistics.txt'
+
+                # cmd: move network.txt ..\\networks')
+                os.chdir(os.path.abspath(folder_path_FLR + folder_output))
+                os.system('move ' + file_network    + ' ..\\' + folder_networks)
+                os.system('move ' + file_community  + ' ..\\' + folder_networks)
+                os.system('move ' + file_statistics + ' ..\\' + folder_networks)
+
+                # cmd: rename network.txt aaa.txt')
+                os.chdir(os.path.abspath(folder_path_FLR + folder_networks))
+                os.system('rename ' + file_network    + ' "LFR_benchmark_u=' + mu + '"_net-' + str(net_counter) + '.txt')
+                os.system('rename ' + file_community  + ' "LFR_benchmark_u=' + mu + '"_net-' + str(net_counter) + '_community.txt')
+                os.system('rename ' + file_statistics + ' "LFR_benchmark_u=' + mu + '"_net-' + str(net_counter) + '_statistics.txt')
+
+                net_counter += 1
+            else:
+                print('[gcc] there are at least two connected compoents in the network, then re-generate a network')
+
+            # stop condition
+            if net_counter == (num_network + 1):
+                break
+                # sys.exit(0)
+            else:
+                pass
+
+if __name__ == '__main__':
+    generate_LFR_benchmark()
