@@ -12,7 +12,8 @@ class P2PNode:
         self.peers = peers
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(('172.17.0.4', self.port)) #這是本節點的 IP
-
+        self.sha = {peer: None for peer in self.peers} 
+        
     def start(self):
         threading.Thread(target=self._listen).start()
         threading.Thread(target=self._send_messages).start()
@@ -20,18 +21,24 @@ class P2PNode:
     def _listen(self):
         while True:
             sha = {}
-            command, A_account, B_account, dollar_amount, peer= self.sock.recvfrom(1024)
-            command = command.decode()
+            data, peer = self.sock.recvfrom(1024)
+            parts = data.decode().split(', ')
+            command = parts[0]
+            A_account = parts[1] if len(parts) > 1 else None
+            B_account = parts[2] if len(parts) > 2 else None
+            dollar_amount = parts[3] if len(parts) > 3 else None
+            
             A_account = A_account.decode()
             B_account = B_account.decode()
             dollar_amount = dollar_amount.decode()
-            if command == "transaction" or "checkChain":
+            
+            if command in ["transaction", "checkChain"]:
                 transaction(A_account, B_account, dollar_amount)
             if command == "checkAllChain":
                 message = "returnSha"
-                self.sock.snndto(f"{message}, {last_block_check()}, {None}, {None}".encode(), peer)
+                self.sock.sendto(f"{message}, {last_block_check()}, {None}, {None}".encode(), peer)
             if command == "returnSha":
-                sha[peer] = A_account
+                self.sha[peer] = A_account
                 localSha = last_block_check()
                 if localSha != A_account:
                     print(f"Message: compare {peer} => {"yes" if localSha == sha[peer] else "no"}")
@@ -39,7 +46,13 @@ class P2PNode:
 
     def _send_messages(self):
         while True:
-            command, from_account, to_account, amount = input("Enter a command (checkMoney, checkLog, transaction, checkChain, checkAllChain): ")
+            raw = input("Enter a command (checkMoney, checkLog, transaction, checkChain, checkAllChain): ")
+            parts = raw.strip().split()
+            command = parts[0]
+            from_account = parts[1] if len(parts) > 1 else None
+            to_account = parts[2] if len(parts) > 2 else None
+            amount = parts[3] if len(parts) > 3 else None
+
             A_account, B_account, dollar_amount = run_command(command, from_account, to_account, amount)
             if command == "transaction" or "checkChain" or "checkAllChain":
                 for peer in self.peers:
