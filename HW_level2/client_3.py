@@ -1,6 +1,7 @@
 import socket
 import threading
 import hashlib
+import os
 
 block_folder = "./"
 initail_block = "0.txt"
@@ -39,13 +40,13 @@ class P2PNode:
                 self.local_sha = last_block_check()
                 self.sha_map = {self.node_id: self.local_sha}
                 self.completed_nodes = set()
-
+                
                 # broadcast 自己的 SHA 給所有人
                 for p in self.peers:
                     self.sock.sendto(f"reportSha, {self.local_sha}".encode(), p)
 
             elif command == "reportSha":
-                sha = parts[1]
+                sha = int(parts[1].strip())
                 self.sha_map[peer] = sha
 
                 if len(self.sha_map) == len(self.peers) + 1:  # 收齊所有 SHA
@@ -68,9 +69,9 @@ class P2PNode:
                         print("No consensus. System not trusted.")
 
                     # 廣播已完成比較
+                    self.completed_nodes.add(self.node_id)
                     for p in self.peers:
                         self.sock.sendto("compareDone".encode(), p)
-                        self.completed_nodes.add(self.node_id)
 
             elif command == "compareDone":
                 self.completed_nodes.add(peer)
@@ -104,7 +105,6 @@ class P2PNode:
                 blocks = raw_chain.split("@@@")
                 
                 # 清空原本的鏈
-                import os
                 for file in os.listdir(block_folder):
                     if file.endswith(".txt"):
                         os.remove(os.path.join(block_folder, file))
@@ -139,15 +139,16 @@ class P2PNode:
                 A_account, B_account, amount = transaction(A_account, B_account, amount)
                 for peer in self.peers:
                     self.sock.sendto(f"transaction, {A_account}, {B_account}, {amount}".encode(), peer)
-                    
+
             elif command == "checkChain":
                 A_account, B_account, amount = checkChain(A_account)
                 for peer in self.peers:
                     self.sock.sendto(f"checkChain, {A_account}, {B_account}, {amount}".encode(), peer)
-                    
+            
             elif command == "checkAllChain":
                 self.checker = parts[1] if len(parts) > 1 else "unknown"
-                if local_chain_is_valid():
+                errorCode = local_chain_is_valid()
+                if errorCode == 0:
                     self.local_sha = last_block_check()
                     for peer in self.peers:
                         self.sock.sendto(f"startCompare, {self.checker}".encode(), peer)
@@ -300,12 +301,14 @@ def checkChain(checker):
             f.write(f"\nangel, {checker}, 10")
             
         create_new_block(block_folder, last_block)
-        return "angel", checker, 10
+        
     elif errorCode == 1:
         print(f"Error: {error_block} inforamtion missing.")
+        
     elif errorCode == 2:
         print(f"Error: {error_block} is not valid.")
         print(f"sha256 of {error_block} is {sha_in_file},\nbut the actual sha256 is {sha}.")
+        
     elif errorCode == 3:
         print(f"Error: {error_block} has more than 5 transactions.")
         
