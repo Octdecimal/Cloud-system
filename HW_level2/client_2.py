@@ -317,16 +317,6 @@ def last_block_check():
     return sha256_file(block_folder + last_block)
 
 
-def checkAllChain(checker):
-    checker = checker
-    
-    errorCode, current_block = local_chain_is_valid()
-    # code
-    if errorCode != 0:
-        print(f"Error: {current_block} is not valid.")
-    return "angel", checker, 100
-
-
 if __name__ == '__main__':
     port = 8001 #本節點的port 
     peers = [('172.17.0.2', 8001), ('172.17.0.4', 8001)]  #跟另外二個IP:8001 節點通信
