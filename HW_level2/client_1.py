@@ -33,12 +33,13 @@ class P2PNode:
                 to_account = parts[2]
                 amount = float(parts[3])
                 transaction(from_account, to_account, amount)
+                
             elif command == "startCompare":
                 self.checker = parts[1]
                 self.local_sha = last_block_check()
                 self.sha_map = {self.node_id: self.local_sha}
                 self.completed_nodes = set()
-
+                
                 # broadcast 自己的 SHA 給所有人
                 for p in self.peers:
                     self.sock.sendto(f"reportSha, {self.local_sha}".encode(), p)
@@ -80,6 +81,7 @@ class P2PNode:
                         self.completed_nodes.clear()
                         self.sha_map.clear()
                         self.checker = None
+                        self.local_sha = None
             
             elif command == "requestChain":
                 # 將整條鏈打包回傳
