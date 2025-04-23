@@ -76,6 +76,10 @@ class P2PNode:
                     if self.checker:
                         print(f"Consensus complete. Rewarding {self.checker}")
                         transaction("angel", self.checker, 100)
+                        # 清空已完成的節點與 SHA 值
+                        self.completed_nodes.clear()
+                        self.sha_map.clear()
+                        self.checker = None
             
             elif command == "requestChain":
                 # 將整條鏈打包回傳
