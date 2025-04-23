@@ -11,12 +11,12 @@ class P2PNode:
         self.port = port
         self.peers = peers
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sock.bind(('172.17.0.4', self.port))  # 本地IP
+        self.sock.bind(('172.17.0.3', self.port))  # 本地IP
         self.sha_map = {}         # 儲存節點 SHA 值
         self.completed_nodes = set()  # 儲存已完成的節點
         self.checker = None       # 記錄誰發起驗證
         self.local_sha = None     # 本地 SHA
-        self.node_id = ('172.17.0.4', self.port)
+        self.node_id = ('172.17.0.3', self.port)
 
     def start(self):
         threading.Thread(target=self._listen).start()
@@ -33,7 +33,6 @@ class P2PNode:
                 to_account = parts[2]
                 amount = float(parts[3])
                 transaction(from_account, to_account, amount)
-                print(f"Add new data '{from_account} to {to_account} of amount {amount}' processed.")
             elif command == "startCompare":
                 self.checker = parts[1]
                 self.local_sha = last_block_check()
@@ -116,21 +115,29 @@ class P2PNode:
         while True:
             raw = input("Enter a command (checkMoney, checkLog, transaction, checkChain, checkAllChain): ")
             parts = raw.strip().split()
+            if len(parts) < 1:
+                continue
             command = parts[0]
             A_account = parts[1] if len(parts) > 1 else None
             B_account = parts[2] if len(parts) > 2 else None
-            amount = parts[3] if len(parts) > 3 else None
+            amount = float(parts[3]) if len(parts) > 3 else None
             
             if command == "checkMoney":
                 checkMoney(A_account)
+                
             elif command == "checkLog":
                 checkLog(A_account)
+                
             elif command == "transaction":
                 A_account, B_account, amount = transaction(A_account, B_account, amount)
-                self.sock.sendto(f"transaction, {A_account}, {B_account}, {amount}".encode(), self.peers[0])
+                for peer in self.peers:
+                    self.sock.sendto(f"transaction, {A_account}, {B_account}, {amount}".encode(), peer)
+
             elif command == "checkChain":
                 A_account, B_account, amount = checkChain(A_account)
-                self.sock.sendto(f"checkChain, {A_account}".encode(), self.peers[0])
+                for peer in self.peers:
+                    self.sock.sendto(f"checkChain, {A_account}, {B_account}, {amount}".encode(), peer)
+            
             elif command == "checkAllChain":
                 self.checker = parts[1] if len(parts) > 1 else "unknown"
                 if local_chain_is_valid():
@@ -239,7 +246,7 @@ def transaction(from_addr, to_addr, dollar):
     from_account = from_addr
     to_account = to_addr
     dollar_amount = dollar
-    if dollar_amount <= 0:
+    if dollar_amount <= 0.0:
         print("Error: dollar_amount must be a positive number")
         return
     
@@ -268,8 +275,8 @@ def local_chain_is_valid():
                 sha = sha256_file(pre_path)
                 if sha_in_file != sha:
                     return errorCode + 2, pre_block, sha_in_file, sha
-            if len(lines) > 7:
-                return errorCode + 3, current_path, None, None
+                if len(lines) > 7:
+                    return errorCode + 3, current_path, None, None
         pre_block = current_block
         current_block = lines[1].strip().split(": ")[1]
     return errorCode, None, None, None
@@ -295,7 +302,7 @@ def checkChain(checker):
     elif errorCode == 3:
         print(f"Error: {error_block} has more than 5 transactions.")
         
-    return "angel", checker, 0
+    return "angel", checker, 10
 
 
 def last_block_check():
@@ -316,7 +323,7 @@ def checkAllChain(checker):
 
 if __name__ == '__main__':
     port = 8001 #本節點的port 
-    peers = [('172.17.0.2', 8001), ('172.17.0.3', 8001)]  #跟另外二個IP:8001 節點通信
+    peers = [('172.17.0.2', 8001), ('172.17.0.4', 8001)]  #跟另外二個IP:8001 節點通信
     node = P2PNode(port, peers)
     node.start()
 
