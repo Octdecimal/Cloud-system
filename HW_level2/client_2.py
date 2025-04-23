@@ -70,10 +70,11 @@ class P2PNode:
                     # 廣播已完成比較
                     for p in self.peers:
                         self.sock.sendto("compareDone".encode(), p)
+                        self.completed_nodes.add(self.node_id)
 
             elif command == "compareDone":
                 self.completed_nodes.add(peer)
-                if len(self.completed_nodes) == len(self.peers):
+                if len(self.completed_nodes) == len(self.peers) + 1:
                     if self.checker:
                         print(f"Consensus complete. Rewarding {self.checker}")
                         transaction("angel", self.checker, 100)
