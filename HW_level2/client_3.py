@@ -18,11 +18,10 @@ class P2PNode:
         self.checker = None       # 記錄誰發起驗證
         self.local_sha = None     # 本地 SHA
         self.node_id = ('172.17.0.2', self.port)
-        self.lock = threading.Lock()
 
     def start(self):
-        threading.Thread(target=self._listen, daemon=True).start()
-        threading.Thread(target=self._send_messages, daemon=True).start()
+        threading.Thread(target=self._listen).start()
+        threading.Thread(target=self._send_messages).start()
 
     def _listen(self):
         while True:
@@ -37,57 +36,54 @@ class P2PNode:
                 transaction(from_account, to_account, amount)
                 
             elif command == "startCompare":
-                with self.lock:
-                    self.checker = parts[1]
-                    self.local_sha = last_block_check()
-                    self.sha_map = {self.node_id: self.local_sha}
-                    self.completed_nodes = set()
-                    
-                    # broadcast 自己的 SHA 給所有人
-                    for p in self.peers:
-                        self.sock.sendto(f"reportSha, {self.local_sha}".encode(), p)
+                self.checker = parts[1]
+                self.local_sha = last_block_check()
+                self.sha_map = {self.node_id: self.local_sha}
+                self.completed_nodes = set()
+                
+                # broadcast 自己的 SHA 給所有人
+                for p in self.peers:
+                    self.sock.sendto(f"reportSha, {self.local_sha}".encode(), p)
 
             elif command == "reportSha":
                 sha = parts[1].strip()
-                with self.lock:
-                    self.sha_map[peer] = sha
+                self.sha_map[peer] = sha
 
-                    if len(self.sha_map) == len(self.peers) + 1:  # 收齊所有 SHA
-                        sha_counts = {}
-                        for s in self.sha_map.values():
-                            sha_counts[s] = sha_counts.get(s, 0) + 1
-                        
-                        majority_sha = max(sha_counts.items(), key=lambda x: x[1])
+                if len(self.sha_map) == len(self.peers) + 1:  # 收齊所有 SHA
+                    sha_counts = {}
+                    for s in self.sha_map.values():
+                        sha_counts[s] = sha_counts.get(s, 0) + 1
+                    
+                    majority_sha = max(sha_counts.items(), key=lambda x: x[1])
 
-                        if majority_sha[1] > (len(self.peers) + 1) / 2:
-                            if self.local_sha != majority_sha[0]:
-                                print("Replacing local chain with majority chain!")
-                                # 找到正確鏈的擁有者
-                                for peer_node, sha in self.sha_map.items():
-                                    if sha == majority_sha[0] and peer_node != self.node_id:
-                                        request_msg = "requestChain".encode()
-                                        node.sock.sendto(request_msg, peer_node)
-                                        break
-                        else:
-                            print("No consensus. System not trusted.")
+                    if majority_sha[1] > (len(self.peers) + 1) / 2:
+                        if self.local_sha != majority_sha[0]:
+                            print("Replacing local chain with majority chain!")
+                            # 找到正確鏈的擁有者
+                            for peer_node, sha in self.sha_map.items():
+                                if sha == majority_sha[0] and peer_node != self.node_id:
+                                    request_msg = "requestChain".encode()
+                                    node.sock.sendto(request_msg, peer_node)
+                                    break
+                    else:
+                        print("No consensus. System not trusted.")
 
-                        # 廣播已完成比較
-                        self.completed_nodes.add(self.node_id)
-                        for p in self.peers:
-                            self.sock.sendto("compareDone".encode(), p)
+                    # 廣播已完成比較
+                    self.completed_nodes.add(self.node_id)
+                    for p in self.peers:
+                        self.sock.sendto("compareDone".encode(), p)
 
             elif command == "compareDone":
-                with self.lock:
-                    self.completed_nodes.add(peer)
-                    if len(self.completed_nodes) == len(self.peers) + 1:
-                        if self.checker:
-                            print(f"Consensus complete. Rewarding {self.checker}")
-                            transaction("angel", self.checker, 100)
-                            # 清空已完成的節點與 SHA 值
-                            self.completed_nodes.clear()
-                            self.sha_map.clear()
-                            self.checker = None
-                            self.local_sha = None
+                self.completed_nodes.add(peer)
+                if len(self.completed_nodes) == len(self.peers) + 1:
+                    if self.checker:
+                        print(f"Consensus complete. Rewarding {self.checker}")
+                        transaction("angel", self.checker, 100)
+                        # 清空已完成的節點與 SHA 值
+                        self.completed_nodes.clear()
+                        self.sha_map.clear()
+                        self.checker = None
+                        self.local_sha = None
             
             elif command == "requestChain":
                 # 將整條鏈打包回傳
@@ -153,16 +149,18 @@ class P2PNode:
                 self.checker = parts[1] if len(parts) > 1 else "unknown"
                 errorCode, _, _, _ = local_chain_is_valid()
                 if errorCode == 0:
-                    with self.lock:
-                        self.local_sha = last_block_check()
-                        for peer in self.peers:
-                            self.sock.sendto(f"startCompare, {self.checker}".encode(), peer)
+                    self.local_sha = last_block_check()
+                    for peer in self.peers:
+                        self.sock.sendto(f"startCompare, {self.checker}".encode(), peer)
                     # 自己也執行 reportSha 邏輯
-                        self.sha_map = {self.node_id: self.local_sha}
-                        for p in self.peers:
-                            self.sock.sendto(f"reportSha, {self.local_sha}".encode(), p)
+                    self._listen_local_sha()
                 else:
                     print("Local chain is invalid.")
+
+    def _listen_local_sha(self):
+        self.sha_map = {self.node_id: self.local_sha}
+        for p in self.peers:
+            self.sock.sendto(f"reportSha, {self.local_sha}".encode(), p)
 
 
 def find_last_block(current_block):
@@ -325,7 +323,7 @@ def last_block_check():
 
 if __name__ == '__main__':
     port = 8001 #本節點的port 
-    peers = [('172.17.0.3', 8001), ('172.17.0.4', 8001)]  #跟另外二個IP:8001 節點通信
+    peers = [('172.17.0.4', 8001), ('172.17.0.3', 8001)]  #跟另外二個IP:8001 節點通信
     node = P2PNode(port, peers)
     node.start()
 
