@@ -67,11 +67,10 @@ class P2PNode:
                                     break
                     else:
                         print("No consensus. System not trusted.")
-
-                    # 廣播已完成比較
-                    self.completed_nodes.add(self.node_id)
-                    for p in self.peers:
-                        self.sock.sendto("compareDone".encode(), p)
+                        # 廣播已完成比較
+                        self.completed_nodes.add(self.node_id)
+                        for p in self.peers:
+                            self.sock.sendto("compareDone".encode(), p)
 
             elif command == "compareDone":
                 self.completed_nodes.add(peer)
@@ -116,7 +115,9 @@ class P2PNode:
                     with open(block_folder + filename, 'w') as f:
                         f.write(content)
                 print("Chain has been synchronized with majority.")
-
+                self.completed_nodes.add(self.node_id)
+                for p in self.peers:
+                    self.sock.sendto("compareDone".encode(), p)
 
     def _send_messages(self):
         while True:
