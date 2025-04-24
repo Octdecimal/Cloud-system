@@ -59,7 +59,7 @@ class P2PNode:
                 
     def _waitAllSha(self):
         while True:
-            time.sleep(1)
+            time.sleep(5)
             if len(self.sha_map) == len(self.peers) + 1:  # 收齊所有 SHA
                 sha_counts = {}
                 for s in self.sha_map.values():
@@ -169,7 +169,7 @@ class P2PNode:
                             return
 
                         filename, filedata = content.split("<<<", 1)
-                        with open(block_folder + filename, 'w') as f:
+                        with open(block_folder + filename, 'w', newline='\r\n') as f:
                             f.write(filedata)
 
     def _send_messages(self):
@@ -256,7 +256,7 @@ def create_new_block(block_folder, last_block):
             f.truncate()
             
             sha = sha256_file(last_block_path)
-            with open(new_block_path, 'w') as f_new:
+            with open(new_block_path, 'w', newline='\r\n') as f_new:
                 f_new.write(f"Sha256 of previous block: {sha}")
                 f_new.write(f"\nNext block: None")
 
@@ -353,6 +353,7 @@ def checkChain(checker):
     errorCode, error_block, sha_in_file, sha = local_chain_is_valid()
     
     if errorCode == 0:
+        print(f"+ Local chain is valid.")
         last_block = find_last_block(initail_block)
         last_block_path = block_folder + last_block
         with open(last_block_path, 'a') as f:
