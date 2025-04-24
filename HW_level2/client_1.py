@@ -171,6 +171,7 @@ class P2PNode:
                 
             elif command == "transaction":
                 A_account, B_account, amount = transaction(A_account, B_account, amount)
+                print(f"+ Transaction: {A_account} -> {B_account} : {amount}")
                 for peer in self.peers:
                     self.sock.sendto(f"transaction, {A_account}, {B_account}, {amount}".encode(), peer)
 
@@ -190,6 +191,8 @@ class P2PNode:
                     self._listen_local_sha()
                 else:
                     print("+ Local chain is invalid.")
+            else:
+                print("Unknown command. Please try again.")
 
     def _listen_local_sha(self):
         self.sha_map = {self.node_id: self.local_sha}
