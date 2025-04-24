@@ -5,4 +5,4 @@ docker cp ./demo2 client_3:/demo2
 
 cd demo2 && chmod 777 *.py
 
-cd .. && rm -rf demo2
+cd .. && rm -rf demo2 && clear

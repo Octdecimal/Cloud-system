@@ -2,6 +2,7 @@ import socket
 import threading
 import hashlib
 import os
+import time
 
 block_folder = "./"
 initail_block = "0.txt"
@@ -22,6 +23,29 @@ class P2PNode:
     def start(self):
         threading.Thread(target=self._listen).start()
         threading.Thread(target=self._send_messages).start()
+        threading.Thread(target=self._consensus).start()
+        
+    def _consensus(self):
+        timeout = 60
+        while True:
+            time.sleep(1)
+            timeout -= 1
+            if len(self.completed_nodes) == len(self.peers) + 1:
+                if self.checker:
+                    print(f"+ Consensus complete. Rewarding {self.checker}")
+                    transaction("angel", self.checker, 100)
+                    # 清空已完成的節點與 SHA 值
+                    self.completed_nodes.clear()
+                    self.sha_map.clear()
+                    self.checker = None
+                    self.local_sha = None
+                    timeout = 60
+            if timeout <= 0:
+                self.completed_nodes.clear()
+                self.sha_map.clear()
+                self.checker = None
+                self.local_sha = None
+                timeout = 60
 
     def _listen(self):
         while True:
@@ -30,12 +54,14 @@ class P2PNode:
             command = parts[0]
 
             if command in ["transaction", "checkChain"]:
+                print(f"+ Received {command} from {peer}")
                 from_account = parts[1]
                 to_account = parts[2]
                 amount = float(parts[3])
                 transaction(from_account, to_account, amount)
                 
             elif command == "startCompare":
+                print(f"+ Received startCompare from {peer}")
                 self.checker = parts[1]
                 self.local_sha = last_block_check()
                 self.sha_map = {self.node_id: self.local_sha}
@@ -46,8 +72,10 @@ class P2PNode:
                     self.sock.sendto(f"reportSha, {self.local_sha}".encode(), p)
 
             elif command == "reportSha":
+                print(f"+ Received reportSha from {peer}")
                 sha = parts[1].strip()
-                self.sha_map[peer] = sha
+                if peer not in self.sha_map:
+                    self.sha_map[peer] = sha
 
                 if len(self.sha_map) == len(self.peers) + 1:  # 收齊所有 SHA
                     sha_counts = {}
@@ -58,33 +86,35 @@ class P2PNode:
 
                     if majority_sha[1] > (len(self.peers) + 1) / 2:
                         if self.local_sha != majority_sha[0]:
-                            print("Replacing local chain with majority chain!")
+                            print(f"+ Majority sha is {majority_sha[0]}")
+                            print(f"+ Local sha is {self.local_sha}")
+                            print("+ Replacing local chain with majority chain!")
                             # 找到正確鏈的擁有者
                             for peer_node, sha in self.sha_map.items():
                                 if sha == majority_sha[0] and peer_node != self.node_id:
                                     request_msg = "requestChain".encode()
                                     node.sock.sendto(request_msg, peer_node)
                                     break
+                        else:
+                            print(f"+ Local sha is already the majority sha: {self.local_sha}")
+                            print("+ No need to replace local chain.")
+                            # 廣播已完成比較
+                            self.completed_nodes.add(self.node_id)
+                            for p in self.peers:
+                                self.sock.sendto("compareDone".encode(), p)
                     else:
-                        print("No consensus. System not trusted.")
+                        print("+ No consensus. System not trusted.")
                         # 廣播已完成比較
                         self.completed_nodes.add(self.node_id)
                         for p in self.peers:
                             self.sock.sendto("compareDone".encode(), p)
 
             elif command == "compareDone":
+                print(f"+ Received compareDone from {peer}")
                 self.completed_nodes.add(peer)
-                if len(self.completed_nodes) == len(self.peers) + 1:
-                    if self.checker:
-                        print(f"Consensus complete. Rewarding {self.checker}")
-                        transaction("angel", self.checker, 100)
-                        # 清空已完成的節點與 SHA 值
-                        self.completed_nodes.clear()
-                        self.sha_map.clear()
-                        self.checker = None
-                        self.local_sha = None
             
             elif command == "requestChain":
+                print(f"+ Received requestChain from {peer}")
                 # 將整條鏈打包回傳
                 all_blocks = []
                 current_block = initail_block
@@ -100,6 +130,7 @@ class P2PNode:
                 self.sock.sendto(f"sendChain, {chain_data}".encode(), peer)
 
             elif command == "sendChain":
+                print(f"+ Received sendChain from {peer}")
                 raw_chain = data.decode().split(", ", 1)[1]
                 blocks = raw_chain.split("@@@")
                 
@@ -114,14 +145,16 @@ class P2PNode:
                     filename, content = block.split("<<<", 1)
                     with open(block_folder + filename, 'w') as f:
                         f.write(content)
-                print("Chain has been synchronized with majority.")
+                
+                print("+ Chain has been synchronized with majority.")
                 self.completed_nodes.add(self.node_id)
                 for p in self.peers:
                     self.sock.sendto("compareDone".encode(), p)
 
     def _send_messages(self):
+        print("Enter a command (checkMoney, checkLog, transaction, checkChain, checkAllChain): ")
         while True:
-            raw = input("Enter a command (checkMoney, checkLog, transaction, checkChain, checkAllChain): ")
+            raw = input()
             parts = raw.strip().split()
             if len(parts) < 1:
                 continue
@@ -156,7 +189,7 @@ class P2PNode:
                     # 自己也執行 reportSha 邏輯
                     self._listen_local_sha()
                 else:
-                    print("Local chain is invalid.")
+                    print("+ Local chain is invalid.")
 
     def _listen_local_sha(self):
         self.sha_map = {self.node_id: self.local_sha}
