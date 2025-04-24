@@ -5,3 +5,6 @@
 *.zip
 *.ppt
 *.pptx
+__pycache__
+.vscode
+.venv

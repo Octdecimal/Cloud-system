@@ -1,7 +1,7 @@
-Sha256 of previous block: b783bc1329ceda1c683f3f534db0a67089931f942e9e177fd8616ec6864be46e
+Sha256 of previous block: 633d4c58934578d5ee158eb5f2bbc607b41c753d572fc000a802eadd4c3ed1fd
 Next block: 19.txt
-C, angel, 56.0
-angel, C, 6.0
-angel, A, 7.0
-angel, B, 45.0
-A, angel, 13.0
+A, B, 20.0
+C, angel, 23.0
+B, C, 23.0
+B, A, 6.0
+angel, C, 44.0
