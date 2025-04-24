@@ -320,7 +320,7 @@ def transaction(from_addr, to_addr, dollar):
     last_block_path = block_folder + last_block
     
     with open(last_block_path, 'a') as f:
-        f.write(f"\n{from_account}, {to_account}, {dollar_amount}")
+        f.write(f"\r\n{from_account}, {to_account}, {dollar_amount}")
         
     create_new_block(block_folder, last_block)
     return from_account, to_account, dollar_amount
@@ -357,7 +357,7 @@ def checkChain(checker):
         last_block = find_last_block(initail_block)
         last_block_path = block_folder + last_block
         with open(last_block_path, 'a') as f:
-            f.write(f"\nangel, {checker}, 10")
+            f.write(f"\r\nangel, {checker}, 10.0")
             
         create_new_block(block_folder, last_block)
         
