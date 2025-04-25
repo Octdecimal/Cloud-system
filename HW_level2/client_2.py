@@ -1,3 +1,7 @@
+# 組員
+# B1129030 吳采庭
+# B1129037 許德暉
+# 節點二
 import socket
 import threading
 import hashlib
