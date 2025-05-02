@@ -26,3 +26,4 @@ websockets==11.0.0
 loguru==0.7.0
 python-dotenv==1.0.0
 requests==2.31.0
+python-multipart
