@@ -386,7 +386,7 @@ def last_block_check():
 
 if __name__ == '__main__':
     port = 8001 #本節點的port 
-    peers = [('172.17.0.2', 8001), ('172.17.0.3', 8001)]  #跟另外二個IP:8001 節點通信
+    peers = [('172.17.0.5', 8001), ('172.17.0.6', 8001)]  #跟另外二個IP:8001 節點通信
     node = P2PNode(port, peers)
     node.start()
 

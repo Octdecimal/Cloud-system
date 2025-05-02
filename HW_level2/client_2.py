@@ -17,12 +17,12 @@ class P2PNode:
         self.port = port
         self.peers = peers
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sock.bind(('172.17.0.3', self.port))  # 本地IP
+        self.sock.bind(('172.17.0.5', self.port))  # 本地IP
         self.sha_map = {}         # 儲存節點 SHA 值
         self.completed_nodes = set()  # 儲存已完成的節點
         self.checker = None       # 記錄誰發起驗證
         self.local_sha = None     # 本地 SHA
-        self.node_id = ('172.17.0.3', self.port)
+        self.node_id = ('172.17.0.5', self.port)
         self.chain_lock = threading.Lock()
         self.timeout = 60
         self.recvChain = False  # 是否收到鏈的標記
@@ -386,7 +386,7 @@ def last_block_check():
 
 if __name__ == '__main__':
     port = 8001 #本節點的port 
-    peers = [('172.17.0.2', 8001), ('172.17.0.4', 8001)]  #跟另外二個IP:8001 節點通信
+    peers = [('172.17.0.6', 8001), ('172.17.0.4', 8001)]  #跟另外二個IP:8001 節點通信
     node = P2PNode(port, peers)
     node.start()
 
