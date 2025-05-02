@@ -1,0 +1,28 @@
+# Audio Processing
+librosa==0.10.0
+pydub==0.25.1
+soundfile==0.12.1
+
+# Web Framework
+fastapi==0.95.1
+uvicorn==0.23.0
+
+# Machine Learning (Optional for AI-driven music analysis)
+tensorflow==2.18.1
+scikit-learn==1.3.0
+
+# Cloud Storage & File Management
+boto3==1.28.0  # For AWS S3
+firebase-admin==6.2.0  # For Firebase
+
+# Background Task Processing
+celery==5.3.1
+redis==5.0.0  # Task queue backend
+
+# WebSockets (for real-time updates)
+websockets==11.0.0
+
+# Logging & Utility
+loguru==0.7.0
+python-dotenv==1.0.0
+requests==2.31.0
