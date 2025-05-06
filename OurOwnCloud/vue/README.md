@@ -1,4 +1,4 @@
-# mushup
+# Vue
 
 The Vue project enables users to upload files, monitor task queues, and track the CPU and memory usage of other nodes.
 
