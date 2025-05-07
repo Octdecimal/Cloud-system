@@ -3,7 +3,7 @@
 🎵 Cloud-Based Music Mashup Composer 🎵
 A creative platform for generating dynamic music mashups, powered by AI-driven beat analysis and cloud-based audio processing. Users can upload songs, tweak remix settings, and produce seamless mashups effortlessly.
 
-🚀 Features
+🚀 Features  
 ✅ AI-Powered Beat Matching & Tempo Adjustment  
 ✅ Harmonic Blending for Smooth Transitions  
 ✅ Interactive Remix Controls (Bass, Treble, Reverb, Echo, etc.)  
