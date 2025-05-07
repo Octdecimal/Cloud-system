@@ -4,14 +4,14 @@
 A creative platform for generating dynamic music mashups, powered by AI-driven beat analysis and cloud-based audio processing. Users can upload songs, tweak remix settings, and produce seamless mashups effortlessly.
 
 🚀 Features
- ✅ AI-Powered Beat Matching & Tempo Adjustment
- ✅ Harmonic Blending for Smooth Transitions
- ✅ Interactive Remix Controls (Bass, Treble, Reverb, Echo, etc.)
- ✅ Genre-Based Mashup Suggestions
- ✅ Collaborative Editing & Cloud Storage
- ✅ Real-Time Audio Visualization & Spectrogram Display
- ✅ Auto-Generated Mashup Variants
- ✅ Live DJ Mode for Multiplayer Remix Sessions
+✅ AI-Powered Beat Matching & Tempo Adjustment  
+✅ Harmonic Blending for Smooth Transitions  
+✅ Interactive Remix Controls (Bass, Treble, Reverb, Echo, etc.)  
+✅ Genre-Based Mashup Suggestions  
+✅ Collaborative Editing & Cloud Storage  
+✅ Real-Time Audio Visualization & Spectrogram Display  
+✅ Auto-Generated Mashup Variants  
+✅ Live DJ Mode for Multiplayer Remix Sessions  
 
 🔧 Tech Stack
 - Frontend: Vue.js / React.js
