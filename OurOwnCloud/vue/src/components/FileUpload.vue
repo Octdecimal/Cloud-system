@@ -1,8 +1,11 @@
 <template>
   <div class="file-upload">
     <h2>Upload File</h2>
-    <input type="file" @change="handleFileChange" />
-    <button @click="uploadFile" :disabled="!selectedFile">Upload</button>
+    <input type="file" multiple @change="handleFileChange" />
+    <ul>
+      <li v-for="file in selectedFiles" :key="file.name">{{ file.name }}</li>
+    </ul>
+    <button @click="uploadFile" :disabled="selectedFiles.length === 0">Upload</button>
   </div>
 </template>
 
@@ -10,16 +13,18 @@
 export default {
   data() {
     return {
-      selectedFile: null,
+      selectedFiles: [],
     };
   },
   methods: {
     handleFileChange(event) {
-      this.selectedFile = event.target.files[0];
+      this.selectedFiles = Array.from(event.target.files);
     },
     async uploadFile() {
       const formData = new FormData();
-      formData.append("file", this.selectedFile);
+      this.selectedFiles.forEach(file => {
+        formData.append("files", file); // Append each file
+      });
 
       try {
         const response = await fetch("http://localhost:8000/upload", {
@@ -28,7 +33,7 @@ export default {
         });
 
         if (response.ok) {
-          alert("File uploaded successfully!");
+          alert("Files uploaded successfully!");
         } else {
           alert("Upload failed.");
         }
@@ -40,6 +45,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .file-upload {
