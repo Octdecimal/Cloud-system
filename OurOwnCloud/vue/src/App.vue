@@ -1,47 +1,52 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <div id="app">
+    <header>
+      <h1>Distributed Computing Dashboard</h1>
+    </header>
+    <main class="content">
+      <section class="upload-panel">
+        <FileUpload />
+      </section>
+      <!-- Add panels here later for TaskQueue, NodeStatus, etc -->
+    </main>
+  </div>
 </template>
 
-<style scoped>
+<script>
+import FileUpload from './components/FileUpload.vue';
+
+export default {
+  components: {
+    FileUpload,
+  },
+};
+</script>
+
+<style>
+#app {
+  font-family: Arial, sans-serif;
+  color: #2c3e50;
+  padding: 20px;
+}
+
 header {
-  line-height: 1.5;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.content {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+.upload-panel {
+  flex: 1 1 300px;
+  max-width: 400px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 </style>

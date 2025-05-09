@@ -1,6 +1,6 @@
-# mushup
+# Vue
 
-The Vue project enables users to upload files, monitor task queues, and track the CPU and memory usage of other nodes.
+The Vue project enables users to upload files, monitor task queues, track the CPU and memory usage of other nodes, and download the been mashup files.
 
 This template should help get you started developing with Vue 3 in Vite.
 
