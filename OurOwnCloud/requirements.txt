@@ -1,11 +1,13 @@
 # Audio Processing
-librosa==0.10.0
+librosa==0.10.2.post1
 pydub==0.25.1
 soundfile==0.12.1
+scipy==2.0.1
+numpy>=1.23
 
 # Web Framework
-fastapi==0.95.1
-uvicorn==0.23.0
+fastapi==0.111.0
+uvicorn==0.29.0
 
 # Machine Learning (Optional for AI-driven music analysis)
 tensorflow==2.18.1
