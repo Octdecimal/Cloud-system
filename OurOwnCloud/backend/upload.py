@@ -20,15 +20,21 @@ def generate_folder_name(files: List[UploadFile]) -> str:
 
 @router.post("/")
 async def upload_files(files: List[UploadFile] = File(...)):
-    folder = generate_folder_name(files)
-    folder_path = os.path.join(UPLOAD_DIR, folder)
-    os.makedirs(folder_path, exist_ok=True)
+    try:
+        folder = generate_folder_name(files)
+        folder_path = os.path.join(UPLOAD_DIR, folder)
+        os.makedirs(folder_path, exist_ok=True)
 
-    for file in files:
-        with open(os.path.join(folder_path, file.filename), "wb") as f:
-            f.write(await file.read())
+        for file in files:
+            file_path = os.path.join(folder_path, file.filename)
+            with open(file_path, "wb") as f:
+                f.write(await file.read())
 
-    register_task(folder)
-    assign_task()
-    # Notify task queue / assign later
-    return {"message": "Uploaded", "folder": folder}
+        register_task(folder)
+        assign_task()
+        return {"message": "Uploaded", "folder": folder}
+    
+    except Exception as e:
+        print(f"Upload error: {e}")
+        return {"error": str(e)}
+
