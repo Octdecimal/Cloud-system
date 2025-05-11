@@ -60,18 +60,17 @@ export default {
           body: formData,
         });
 
-        if (!response.ok) {
-          console.error(`Upload error. Status: ${response.status}`);
-          const errorData = await response.json();
-          console.error("Error response:", errorData);
-          alert(`An error occurred during upload. Status: ${response.status}`);
-          return;
+        const result = await response.json();
+        
+        if (response.ok && result.message) {
+          alert(result.message);
+          this.selectedFiles = [];
+          this.fetchTasks();
+        } else {
+          console.warn("Unexpected response structure:", result);
+          alert(result.error || "An unexpected error occurred.");
         }
 
-        const result = await response.json();
-        alert(result.message || "Upload completed.");
-        this.selectedFiles = [];
-        this.fetchTasks();
       } catch (error) {
         console.error("Error during upload:", error);
         alert("An error occurred during upload.");
