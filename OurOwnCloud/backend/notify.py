@@ -5,7 +5,7 @@ import os
 
 router = APIRouter()
 
-@router.post("/")
+@router.post("")
 def notify_completion(
     task_id: str = Form(...),
     node_ip: str = Form(...),

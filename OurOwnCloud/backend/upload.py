@@ -18,7 +18,7 @@ def generate_folder_name(files: List[UploadFile]) -> str:
         hasher.update(file.filename.encode())
     return hasher.hexdigest()[:16]
 
-@router.post("/")
+@router.post("")
 async def upload_files(files: List[UploadFile] = File(...)):
     try:
         folder = generate_folder_name(files)
