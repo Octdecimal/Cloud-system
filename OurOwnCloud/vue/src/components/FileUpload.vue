@@ -72,10 +72,16 @@ export default {
     async fetchTasks() {
       try {
         const response = await fetch("http://localhost:8000/status");
+        if (!response.ok) {
+          console.error(`Failed to load task status. Status: ${response.status}`);
+          alert(`Failed to load task status. Status: ${response.status}`);
+          return;
+        }
+
         const data = await response.json();
         this.taskQueue = data.tasks || {};
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching task status:", error);
         alert("Failed to load task status.");
       }
     },
