@@ -20,7 +20,7 @@ def update_task_status(task_id: str, status: str, node: str = None, result: str 
 @router.get("/")
 def get_task_status():
     if not task_queue:
-        return {}
+        return {"tasks": []}
     else:
         return {"tasks": task_queue}
 
