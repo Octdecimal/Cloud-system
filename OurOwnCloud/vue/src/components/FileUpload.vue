@@ -60,12 +60,20 @@ export default {
           body: formData,
         });
 
+        if (!response.ok) {
+          console.error(`Upload error. Status: ${response.status}`);
+          const errorData = await response.json();
+          console.error("Error response:", errorData);
+          alert(`An error occurred during upload. Status: ${response.status}`);
+          return;
+        }
+
         const result = await response.json();
         alert(result.message || "Upload completed.");
         this.selectedFiles = [];
         this.fetchTasks();
       } catch (error) {
-        console.error(error);
+        console.error("Error during upload:", error);
         alert("An error occurred during upload.");
       }
     },
