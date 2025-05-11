@@ -19,7 +19,10 @@ def update_task_status(task_id: str, status: str, node: str = None, result: str 
 
 @router.get("/")
 def get_task_status():
-    return {"tasks": task_queue}
+    if not task_queue:
+        return {}
+    else:
+        return {"tasks": task_queue}
 
 def get_waiting_tasks():
     return [task_id for task_id, info in task_queue.items() if info["status"] == "waiting"]
