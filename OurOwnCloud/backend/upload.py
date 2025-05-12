@@ -8,7 +8,7 @@ import time
 
 router = APIRouter()
 
-UPLOAD_DIR = "uploads"
+UPLOAD_DIR = "/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 def generate_folder_name(files: List[UploadFile]) -> str:
