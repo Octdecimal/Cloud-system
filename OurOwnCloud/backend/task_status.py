@@ -37,3 +37,7 @@ def get_task_status():
 
 def get_waiting_tasks():
     return [task_id for task_id, info in task_queue.items() if info["status"] == "waiting"]
+
+def remove_task(task_id):
+    if task_id in task_queue:
+        del task_queue[task_id]

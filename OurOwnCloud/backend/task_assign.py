@@ -1,7 +1,7 @@
 import os
 import socket
 from node_registry import get_nodes, set_node_status
-from task_status import update_task_status, get_waiting_tasks, get_task_status
+from task_status import update_task_status, get_waiting_tasks, get_task_status, remove_task
 from fastapi import APIRouter
 
 router = APIRouter()
@@ -14,14 +14,12 @@ ASSIGN_MESSAGE = "ASSIGN_TASK"
 async def remove_task(task_id: str):
     task_queue = get_task_status()
     if task_id in task_queue and task_queue[task_id]["status"] == "waiting":
-        del task_queue[task_id]
         # Optionally, remove the task files from the filesystem
         task_path = os.path.join(TASK_INPUT_DIR, task_id)
         if os.path.exists(task_path):
-            print(f"Removing task files at {task_path}")
             os.remove(task_path)
-        else:
-            print(f"Task files not found at {task_path}")
+            remove_task(task_id)
+            
 
 def assign_task():
     waiting_tasks = get_waiting_tasks()
