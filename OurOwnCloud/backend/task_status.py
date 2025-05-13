@@ -1,10 +1,24 @@
 from fastapi import APIRouter
 from typing import Dict
+import os
+
+UPLOAD_DIR = "/uploads"
 
 router = APIRouter()
 
 # In-memory task registry
 task_queue: Dict[str, Dict] = {}
+
+def all_tasks_search():
+    # search all folders in the UPLOAD_DIR
+    for folder in os.listdir(UPLOAD_DIR):
+        folder_path = os.path.join(UPLOAD_DIR, folder)
+        if os.path.isdir(folder_path):
+            goal = os.path.join(folder_path, folder_path)
+            if os.path.exists(goal):
+                task_queue[folder] = {"status": "done", "node": None, "result": goal}
+            else:
+                task_queue[folder] = {"status": "waiting", "node": None, "result": None}
 
 def register_task(task_id: str):
     task_queue[task_id] = {"status": "waiting", "node": None, "result": None}
