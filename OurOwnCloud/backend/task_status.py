@@ -42,7 +42,6 @@ def get_waiting_tasks():
 @router.delete("/remove/{task_id}")
 def remove_task(task_id):
     if task_id in task_queue:
-        del task_queue[task_id]
         # remove the folder from UPLOAD_DIR
         folder_path = os.path.join(UPLOAD_DIR, task_id)
         if os.path.exists(folder_path):
@@ -52,6 +51,7 @@ def remove_task(task_id):
                 if os.path.isfile(file_path):
                     os.remove(file_path)
             os.rmdir(folder_path)
+        del task_queue[task_id]
         return {"message": f"Task {task_id} removed"}
     else:
         return {"error": "Task not found"}
