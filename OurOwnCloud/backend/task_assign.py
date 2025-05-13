@@ -6,7 +6,6 @@ from task_status import update_task_status, get_waiting_tasks
 TASK_INPUT_DIR = "/uploads"
 ASSIGN_PORT = 50002
 ASSIGN_MESSAGE = "ASSIGN_TASK"
-            
 
 def assign_task():
     waiting_tasks = get_waiting_tasks()
