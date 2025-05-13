@@ -18,8 +18,10 @@ async def remove_task(task_id: str):
         # Optionally, remove the task files from the filesystem
         task_path = os.path.join(TASK_INPUT_DIR, task_id)
         if os.path.exists(task_path):
+            print(f"Removing task files at {task_path}")
             os.remove(task_path)
-        return True
+        else:
+            print(f"Task files not found at {task_path}")
 
 def assign_task():
     waiting_tasks = get_waiting_tasks()
