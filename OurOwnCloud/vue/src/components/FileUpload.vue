@@ -18,6 +18,7 @@
           <th>Status</th>
           <th>Node</th>
           <th>Result</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
