@@ -31,13 +31,15 @@ def update_task_status(task_id: str, status: str, node: str = None, result: str 
         if result:
             task_queue[task_id]["result"] = result
 
-@router.get("")
+@router.get("/status")
 def get_task_status():
     return {"tasks": task_queue}
 
 def get_waiting_tasks():
     return [task_id for task_id, info in task_queue.items() if info["status"] == "waiting"]
 
+@router.get("/remove/{task_id}")
 def remove_task(task_id):
     if task_id in task_queue:
         del task_queue[task_id]
+        return {"message": f"Task {task_id} removed"}
