@@ -10,14 +10,14 @@
     <hr />
 
     <h2>Task Queue</h2>
-    <button @click="fetchTasks">Refresh</button>
+    <button @click="fetchTasks()">Refresh</button>
     <table>
       <thead>
         <tr>
           <th>Task ID</th>
           <th>Status</th>
           <th>Node</th>
-          <th>Result</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -26,6 +26,9 @@
           <td>{{ task.status }}</td>
           <td>{{ task.node || '—' }}</td>
           <td>
+            <button v-if="task.status === 'waiting'" @click="removeTask(taskId)">
+              Remove
+            </button>
             <button v-if="task.status === 'done' && task.result" @click="downloadResult(task.result)">
               Download
             </button>
@@ -66,6 +69,7 @@ export default {
           alert(result.message);
           this.selectedFiles = [];
           this.fetchTasks();
+          formData.delete("files");
         } else {
           console.warn("Unexpected response structure:", result);
           alert(result.error || "An unexpected error occurred.");
@@ -92,7 +96,25 @@ export default {
         alert("Failed to load task status.");
       }
     },
-    downloadResult(filePath) {
+    async removeTask(taskId) {
+      try {
+        const response = await fetch(`http://localhost:8000/remove/${taskId}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          alert("Task removed successfully.");
+          this.fetchTasks();
+        } else {
+          console.error(`Failed to remove task. Status: ${response.status}`);
+          alert(`Failed to remove task. Status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error("Error removing task:", error);
+        alert("Failed to remove task.");
+      }
+    },
+    async downloadResult(filePath) {
       // 假設你有設計一個 /download API 提供檔案下載
       const url = `http://localhost:8000${filePath}`;
       window.open(url, "_blank");
