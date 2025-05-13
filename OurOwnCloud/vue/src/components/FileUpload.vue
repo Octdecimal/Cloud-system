@@ -26,7 +26,7 @@
           <td>{{ task.status }}</td>
           <td>{{ task.node || '—' }}</td>
           <td>
-            <button v-if="task.status === 'wating' && task.result" @click="removeTask(taskId)">
+            <button v-if="task.status === 'waiting' && task.result" @click="removeTask(taskId)">
               removeTask
             </button>
             <button v-if="task.status === 'done' && task.result" @click="downloadResult(task.result)">
