@@ -43,4 +43,10 @@ def get_waiting_tasks():
 def remove_task(task_id):
     if task_id in task_queue:
         del task_queue[task_id]
+        # remove the folder from UPLOAD_DIR
+        folder_path = os.path.join(UPLOAD_DIR, task_id)
+        if os.path.exists(folder_path):
+            os.rmdir(folder_path)
         return {"message": f"Task {task_id} removed"}
+    else:
+        return {"error": "Task not found"}
