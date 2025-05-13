@@ -46,6 +46,11 @@ def remove_task(task_id):
         # remove the folder from UPLOAD_DIR
         folder_path = os.path.join(UPLOAD_DIR, task_id)
         if os.path.exists(folder_path):
+            # clean up the folder
+            for file in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, file)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
             os.rmdir(folder_path)
         return {"message": f"Task {task_id} removed"}
     else:
