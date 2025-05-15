@@ -24,7 +24,6 @@ NODE_INFO = "USAGE_DATA"
 COUNTDOWN = 30 # 節點的存活時間
 
 nodes = {}# 用來存放節點的 IP 和狀態
-nodes["192.168.0.101"] = NodeInfo(ip="192.168.0.101", cpu_usage="15%", mem_usage="45%", countdown=300)
 
 
 def get_local_ip():
@@ -64,8 +63,6 @@ def listen_for_nodes(callback):
                         busy = status != "idle"
                         add_node(node_ip, busy)
                         callback(node_ip, busy)
-                        if node_ip not in nodes:
-                            nodes[node_ip] = NodeInfo(ip=node_ip, cpu_usage="0%", mem_usage="0%", countdown=COUNTDOWN)
             except OSError as e:
                 print(f"Node listening error: {e}")
                 break
