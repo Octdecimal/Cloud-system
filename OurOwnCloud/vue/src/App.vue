@@ -45,7 +45,7 @@ header {
   flex-wrap: wrap;
 }
 
-.upload-panel .data-use-panel {
+.upload-panel, .data-use-panel {
   flex: 1 1 300px;
   max-width: 400px;
   border: 1px solid #ddd;
