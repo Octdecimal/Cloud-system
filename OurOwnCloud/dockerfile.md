@@ -13,3 +13,6 @@ webNode:
 
     run:
     docker run -p 8000:8000 -p 5137:5137 -it -v /uploads -v ./backend:/backend -v ./vue:/vue --name web --restart unless-stopped web
+
+    restart:
+    docker start -ai web
