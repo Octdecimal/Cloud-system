@@ -7,13 +7,16 @@
       <section class="upload-panel">
         <FileUpload />
       </section>
-      <!-- Add panels here later for TaskQueue, NodeStatus, etc -->
+      <section class="data-use-panel">
+        <DataUse />
+      </section>
     </main>
   </div>
 </template>
 
 <script>
 import FileUpload from './components/FileUpload.vue';
+import DataUse from './components/DataUse.vue';
 
 export default {
   components: {
@@ -41,7 +44,7 @@ header {
   flex-wrap: wrap;
 }
 
-.upload-panel {
+.upload-panel .data-use-panel {
   flex: 1 1 300px;
   max-width: 400px;
   border: 1px solid #ddd;

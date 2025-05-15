@@ -107,7 +107,8 @@ def countdown_nodes():
         for ip in list(map.keys()):
             map[ip][2] -= 1
             if map[ip][2] <= 0:
-                del map[ip]
+                map[ip][0] = None
+                map[ip][1] = None
                 print(f"[DISCOVERY] Node {ip} timed out and removed from registry.")
 
 def start_discovery(callback):
