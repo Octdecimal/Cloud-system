@@ -1,0 +1,2 @@
+docker build -t mashup-node .
+docker run -it --network host -v "$PWD/received_audio:/app/received_audio" --name node1 mashup-node
