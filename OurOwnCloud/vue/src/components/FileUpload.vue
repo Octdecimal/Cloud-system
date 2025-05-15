@@ -68,8 +68,6 @@ export default {
         if (response.ok && result.message) {
           alert(result.message);
           this.fetchTasks();
-          formData.delete("files");
-          this.selectedFiles = [];
         } else {
           console.warn("Unexpected response structure:", result);
           alert(result.error || "An unexpected error occurred.");
