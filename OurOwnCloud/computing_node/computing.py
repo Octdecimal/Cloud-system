@@ -92,7 +92,7 @@ def listen_4_assignment():
         time.sleep(1)
     
     asign_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    asign_sock.bind((SERVER_IP, ASSIGN_PORT))
+    asign_sock.bind(('0.0.0.0', ASSIGN_PORT))
     asign_sock.listen(1)
     while True:
         try:
