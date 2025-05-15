@@ -1,27 +1,27 @@
 FROM python:3.12-slim
 
-# Install system dependencies
+# Install system-level dependencies
 RUN apt-get update && \
-    apt-get install -y ffmpeg libsndfile1 && \
+    apt-get install -y ffmpeg libsndfile1 procps && \
     rm -rf /var/lib/apt/lists/*
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the application files
+# Copy the Python script
 COPY computing_node/computing.py /app/computing.py
 
-# Create the uploads directory
+# Create upload directory
 RUN mkdir -p /uploads
 
-# Set the volume
-VOLUME ["/uploads"]
-
 # Install Python dependencies
-RUN pip install --no-cache-dir pydub librosa soundfile numpy
+RUN pip install --no-cache-dir \
+    pydub \
+    librosa \
+    soundfile \
+    numpy \
+    scipy \
+    audioread \
+    resampy
 
-# Expose the required ports
-EXPOSE 50000 50001 50002 50003
-
-# Set the entrypoint
+# Default command to run the computing script
 CMD ["python", "/app/computing.py"]
