@@ -20,9 +20,14 @@ FROM python:3.12-slim
 
 WORKDIR /
 
+# Copy backend and frontend files
 COPY --from=backend /backend /backend
 COPY --from=frontend /vue /vue
 COPY start.sh /start.sh
+
+# Ensure npm and uvicorn are installed in the final stage
+RUN pip install uvicorn
+RUN apt-get update && apt-get install -y nodejs npm
 
 RUN chmod +x /start.sh
 
