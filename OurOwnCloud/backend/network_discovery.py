@@ -103,9 +103,13 @@ def listen_for_node_info():
                     if len(parts) == 4:
                         _, node_ip, cpu_usage, mem_usage = parts
                         print(f"[DISCOVERY] Node {node_ip} CPU: {cpu_usage}, Memory: {mem_usage}")
-                        nodes[node_ip][0] = cpu_usage
-                        nodes[node_ip][1] = mem_usage
-                        nodes[node_ip][2] = COUNTDOWN
+                        if node_ip not in nodes:
+                            nodes[node_ip] = NodeInfo(ip=node_ip, cpu_usage=cpu_usage, mem_usage=mem_usage, countdown=COUNTDOWN)
+                        else:
+                            node = nodes[node_ip]
+                            node.cpu_usage = cpu_usage
+                            node.mem_usage = mem_usage
+                            node.countdown = COUNTDOWN
             except OSError as e:
                 print(f"Node status listening error: {e}")
                 break
@@ -116,9 +120,9 @@ def countdown_nodes():
     while True:
         time.sleep(1)
         for ip in list(nodes.keys()):
-            if nodes[ip][2] > 0:
-                nodes[ip][2] -= 1
-            else:
+            node = nodes[ip]
+            node.countdown -= 1
+            if node.countdown <= 0:
                 print(f"[DISCOVERY] Node {ip} is no longer available.")
                 del nodes[ip]
 
@@ -141,4 +145,4 @@ def start_discovery(callback):
 router = APIRouter()
 @router.get("/node_usage")
 async def get_node_usage():
-    return nodes
+    return {ip: node.__dict__ for ip, node in nodes.items()}
