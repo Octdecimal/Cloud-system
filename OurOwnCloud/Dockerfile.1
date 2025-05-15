@@ -9,7 +9,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Copy the application files
-COPY computing.py /app/computing.py
+COPY computing_node/computing.py /app/computing.py
 
 # Create the uploads directory
 RUN mkdir -p /uploads
