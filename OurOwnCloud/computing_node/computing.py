@@ -86,7 +86,7 @@ def send_usage_data(cpu_line, mem_line):
     if SERVER_IP:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sock.bind(('', INFO_PORT))
+            sock.sendto(message.encode(), (SERVER_IP, INFO_PORT))
             message = f"{NODE_INFO}|{get_local_ip()}|{cpu_line}|{mem_line}"
             sock.sendto(message.encode(), (SERVER_IP, BROADCAST_PORT))
             print(f"[NODE] Sent usage data to {SERVER_IP}")
