@@ -20,7 +20,7 @@ export default {
 
     const fetchNodes = () => {
       // Example API call. Replace with actual server call.
-      fetch('/api/nodes')
+      fetch('http://172.17.0.2:8000/node_use')
         .then((response) => response.json())
         .then((data) => {
           nodes.value = data;

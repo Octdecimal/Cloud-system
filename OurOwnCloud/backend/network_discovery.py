@@ -2,7 +2,8 @@ import socket
 import threading
 import time
 from task_assign import assign_task
-from node_registry import set_node_status
+from node_registry import add_node, get_nodes, set_node_status
+from fastapi import APIRouter
 
 BROADCAST_PORT = 50000
 COMPLETION_PORT = 50001  # 新增的接收完成通知用 port
@@ -50,6 +51,7 @@ def listen_for_nodes(callback):
                     if len(parts) == 3:
                         _, node_ip, status = parts
                         busy = status != "idle"
+                        add_node(node_ip, busy)
                         callback(node_ip, busy)
             except OSError as e:
                 print(f"Node listening error: {e}")
@@ -72,8 +74,6 @@ def listen_for_completions():
                     if len(parts) == 2:
                         _, node_ip = parts
                         print(f"[DISCOVERY] Task done message from {node_ip}")
-                        if assign_task():
-                            set_node_status(node_ip, busy=False)
             except OSError as e:
                 print(f"Completion listening error: {e}")
                 break
@@ -111,9 +111,23 @@ def countdown_nodes():
                 map[ip][1] = None
                 print(f"[DISCOVERY] Node {ip} timed out and removed from registry.")
 
+def assign_2_node():
+    for ip in map.keys():
+        usable_node = get_nodes()
+        if ip in usable_node:
+            print(f"[DISCOVERY] Assigning task to node {ip}")
+            if assign_task(ip):
+                set_node_status(ip, busy=True)
+
 def start_discovery(callback):
     threading.Thread(target=broadcast_ip, daemon=True).start()
     threading.Thread(target=listen_for_nodes, args=(callback,), daemon=True).start()
     threading.Thread(target=listen_for_completions, daemon=True).start()
     threading.Thread(target=listen_for_node_info, daemon=True).start()
     threading.Thread(target=countdown_nodes, daemon=True).start()
+    threading.Thread(target=assign_2_node, daemon=True).start()
+    
+router = APIRouter()
+@router.get("/node-usage")
+async def get_node_usage():
+    return map

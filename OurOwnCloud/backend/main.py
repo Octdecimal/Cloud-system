@@ -6,6 +6,7 @@ from task_status import all_tasks_search
 from network_discovery import start_discovery
 from node_registry import add_node as register_node
 from download import router as download_router
+from network_discovery import router as node_usage_router
 
 app = FastAPI()
 
@@ -24,6 +25,7 @@ def wrapped_add_node(ip, busy):
 app.include_router(upload_router, prefix="/upload")
 app.include_router(status_router)
 app.include_router(download_router)
+app.include_router(node_usage_router)
 
 # Start background discovery
 start_discovery(wrapped_add_node)
