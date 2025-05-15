@@ -35,6 +35,7 @@ export default {
         this.nodeUsage = data;
       } catch (error) {
         console.error("Error fetching node usage:", error);
+        console.log("Response content:", await response.text());
       }
     }
   },
