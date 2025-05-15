@@ -17,7 +17,7 @@ COPY --from=frontend /vue /vue
 COPY start.sh /start.sh
 
 # Ensure npm, uvicorn, and FastAPI are installed in the final stage
-COPY backend/requirements.txt .
+COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install npm globally
