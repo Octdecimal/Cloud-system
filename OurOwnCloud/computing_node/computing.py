@@ -87,9 +87,12 @@ def send_usage_data(cpu_line, mem_line):
 
 def listen_4_assignment():
     global NODE_STATUS
+    while not SERVER_IP:
+        print("[NODE] Waiting for server discovery...")
+        time.sleep(1)
+    
     asign_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     asign_sock.bind((SERVER_IP, ASSIGN_PORT))
-    
     asign_sock.listen(1)
     while True:
         try:
