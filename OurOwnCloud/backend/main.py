@@ -3,17 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from upload import router as upload_router
 from task_status import router as status_router
 from task_status import all_tasks_search
-from network_discovery import start_discovery, get_local_ip
+from network_discovery import start_discovery
 from node_registry import add_node as register_node
 from download import router as download_router
 
 app = FastAPI()
-ip = get_local_ip()
 
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[f"http:{ip}:5173"],  # Allow requests from Vite frontend
+    allow_origins=["http://localhost:5173"],  # Allow requests from Vite frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
