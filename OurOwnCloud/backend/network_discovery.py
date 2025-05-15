@@ -64,6 +64,7 @@ def listen_for_nodes(callback):
                         busy = status != "idle"
                         add_node(node_ip, busy)
                         callback(node_ip, busy)
+                        nodes[node_ip] = NodeInfo(ip=node_ip, cpu_usage="0%", mem_usage="0%", countdown=COUNTDOWN)
             except OSError as e:
                 print(f"Node listening error: {e}")
                 break
