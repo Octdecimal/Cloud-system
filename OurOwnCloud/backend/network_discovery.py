@@ -103,9 +103,9 @@ def listen_for_node_info():
                     parts = msg.split('|')
                     if len(parts) == 4:
                         _, node_ip, cpu_usage, mem_usage = parts
-                        print(f"[DISCOVERY] Node {node_ip} CPU: {cpu_usage}, Memory: {mem_usage}")
+                        print(f"[DISCOVERY] Node {node_ip} CPU: {cpu_usage}%, Memory: {mem_usage}%")
                         # 更新節點的 CPU 和記憶體使用率
-                        nodes[node_ip] = NodeInfo(ip=node_ip, cpu_usage=cpu_usage, mem_usage=mem_usage, countdown=COUNTDOWN)
+                        nodes[node_ip] = NodeInfo(ip=node_ip, cpu_usage=f"{cpu_usage}%", mem_usage=f"{mem_usage}%", countdown=COUNTDOWN)
             except OSError as e:
                 print(f"Node status listening error: {e}")
                 break
