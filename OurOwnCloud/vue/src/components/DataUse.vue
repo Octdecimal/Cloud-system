@@ -1,22 +1,18 @@
 <template>
-  <div class="p-4">
-    <h1 class="text-xl font-bold mb-4">Node Usage Data</h1>
-    <table class="w-full bg-white shadow rounded-lg">
-      <thead>
-        <tr>
-          <th class="p-2 border-b">Node IP</th>
-          <th class="p-2 border-b">CPU Usage</th>
-          <th class="p-2 border-b">Memory Usage</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(node, ip) in nodeUsage" :key="ip">
-          <td class="p-2 border-b">{{ node.ip }}</td>
-          <td class="p-2 border-b">{{ node.cpu_usage }}</td>
-          <td class="p-2 border-b">{{ node.mem_usage }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="sheet">
+    <h2>Node Usage Data</h2>
+    <div class="sheet-content">
+      <div class="row header">
+        <div>Node IP</div>
+        <div>CPU Usage</div>
+        <div>Memory Usage</div>
+      </div>
+      <div class="row" v-for="(node, ip) in nodeUsage" :key="ip">
+        <div>{{ node.ip }}</div>
+        <div>{{ node.cpu_usage }}%</div>
+        <div>{{ node.mem_usage }}%</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -32,7 +28,6 @@ export default {
       try {
         const response = await fetch('http://172.17.0.2:8000/node_usage');
         const text = await response.text();
-        console.log("Response content:", text);
         let data = {};
         try {
           data = JSON.parse(text);
@@ -53,13 +48,29 @@ export default {
 </script>
 
 <style scoped>
-.table {
-  width: 100%;
-  border-collapse: collapse;
+.sheet {
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 16px auto;
 }
-.table th, .table td {
-  padding: 8px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+
+.sheet-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.header {
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 8px;
 }
 </style>
