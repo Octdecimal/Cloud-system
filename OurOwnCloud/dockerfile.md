@@ -12,4 +12,4 @@ webNode:
     docker build -f ./Dockerfile.2 -t web .
 
     run:
-    docker run -p 5137:5137 -it -v /uploads -v --name web web
+    docker run -p 5137:5137 -it -v /uploads --name web web
