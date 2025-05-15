@@ -12,7 +12,7 @@ FROM python:3.12-slim
 WORKDIR /
 
 # Copy backend and frontend files
-COPY --from=backend /backend /backend
+COPY ./backend /backend
 COPY --from=frontend /vue /vue
 COPY start.sh /start.sh
 
