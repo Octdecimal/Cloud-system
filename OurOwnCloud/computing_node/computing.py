@@ -7,6 +7,7 @@ from pydub import AudioSegment
 import librosa
 import soundfile as sf
 import numpy as np
+import psutil
 
 BROADCAST_PORT = 50000
 COMPLETION_PORT = 50001
@@ -59,19 +60,23 @@ def identity_2_server():
     else:
         print("[NODE] No server IP to notify")
 
+def get_system_usage():
+    # Get CPU usage percentage
+    cpu_usage = psutil.cpu_percent(interval=1)
+    
+    # Get memory usage
+    mem = psutil.virtual_memory()
+    mem_usage = mem.percent
+
+    return cpu_usage, mem_usage
+
 def monitor_system_usage():
     while True:
         try: 
             # Run the top command and get the output
-            result = subprocess.run(['top', '-bn', '1', '-i', '-c'], stdout=subprocess.PIPE)
-            output = result.stdout.decode()
-            # Extract CPU and Memory usage
-            lines = output.split('\n')
-            cpu_line = lines[2]
-            mem_line = lines[3]
-            # Send data to server
-            print(f"[NODE] CPU: {cpu_line}, Memory: {mem_line}")
-            send_usage_data(cpu_line, mem_line)
+            cpu_usage, mem_usage = get_system_usage()
+            print(f"[NODE] CPU: {cpu_usage}, Memory: {mem_usage}")
+            send_usage_data(cpu_usage, mem_usage)
         except Exception as e:
             print(f"[ERROR] Monitoring error: {e}")
         

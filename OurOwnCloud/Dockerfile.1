@@ -21,7 +21,8 @@ RUN pip install --no-cache-dir \
     numpy \
     scipy \
     audioread \
-    resampy
+    resampy \
+    psutil
 
 # Default command to run the computing script
 CMD ["python", "/app/computing.py"]
