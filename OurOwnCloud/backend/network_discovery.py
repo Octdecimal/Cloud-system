@@ -64,7 +64,8 @@ def listen_for_nodes(callback):
                         busy = status != "idle"
                         add_node(node_ip, busy)
                         callback(node_ip, busy)
-                        nodes[node_ip] = NodeInfo(ip=node_ip, cpu_usage="0%", mem_usage="0%", countdown=COUNTDOWN)
+                        if node_ip not in nodes:
+                            nodes[node_ip] = NodeInfo(ip=node_ip, cpu_usage="0%", mem_usage="0%", countdown=COUNTDOWN)
             except OSError as e:
                 print(f"Node listening error: {e}")
                 break
@@ -106,13 +107,11 @@ def listen_for_node_info():
                     if len(parts) == 4:
                         _, node_ip, cpu_usage, mem_usage = parts
                         print(f"[DISCOVERY] Node {node_ip} CPU: {cpu_usage}, Memory: {mem_usage}")
-                        if node_ip not in nodes:
-                            nodes[node_ip] = NodeInfo(ip=node_ip, cpu_usage=cpu_usage, mem_usage=mem_usage, countdown=COUNTDOWN)
-                        else:
-                            node = nodes[node_ip]
-                            node.cpu_usage = cpu_usage
-                            node.mem_usage = mem_usage
-                            node.countdown = COUNTDOWN
+                        # 更新節點的 CPU 和記憶體使用率
+                        if node_ip in nodes:
+                            nodes[node_ip].cpu_usage = cpu_usage
+                            nodes[node_ip].mem_usage = mem_usage
+                            nodes[node_ip].countdown = COUNTDOWN
             except OSError as e:
                 print(f"Node status listening error: {e}")
                 break
