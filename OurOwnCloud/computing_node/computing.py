@@ -17,10 +17,12 @@ COMPLETION_MESSAGE = "TASK_DONE"
 ASSIGN_MESSAGE = "ASSIGN_TASK"
 NODE_INFO = "USAGE_DATA"
 SERVER_IP = None
+COUNT_DOWN = 30
 NODE_STATUS = "idle"
 UPLOAD_DIR = "/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+count_down = 0
 
 def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -88,6 +90,7 @@ def send_usage_data(cpu_line, mem_line):
 
 def listen_4_assignment():
     global NODE_STATUS
+    global count_down
     while not SERVER_IP:
         print("[NODE] Waiting for server discovery...")
         time.sleep(1)
@@ -105,6 +108,7 @@ def listen_4_assignment():
                 NODE_STATUS = "busy"
                 simulate_mashup(task_id)
                 conn.sendall("ACK".encode())
+                count_down = COUNT_DOWN
             conn.close()
         except OSError as e:
             print(f"Assignment error: {e}")
@@ -176,11 +180,20 @@ def simulate_mashup(task_id):
     output_path = os.path.join(UPLOAD_DIR, f"{task_id}.mp3")
     mix_audio_files(input_files, output_path)
 
+def coutdown():
+    global count_down
+    global SERVER_IP
+    while count_down > 0:
+        time.sleep(1)
+        count_down -= 1
+    SERVER_IP = None
+    
 
 if __name__ == "__main__":
     # threading.Thread(target=listen_for_server, daemon=True).start()
     threading.Thread(target=monitor_system_usage, daemon=True).start()
     threading.Thread(target=listen_4_assignment, daemon=True).start()
+    threading.Thread(target=coutdown, daemon=True).start()
     
     while True:
         if SERVER_IP is None:
