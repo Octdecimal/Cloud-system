@@ -6,9 +6,11 @@ from node_registry import set_node_status
 
 BROADCAST_PORT = 50000
 COMPLETION_PORT = 50001  # 新增的接收完成通知用 port
+INFO_PORT = 50003
 BROADCAST_INTERVAL = 5
 DISCOVERY_MESSAGE = "DISTRIBUTED_NODE_DISCOVERY"
 COMPLETION_MESSAGE = "TASK_DONE"
+NODE_INFO = "USAGE_DATA"
 COUNTDOWN = 30 # 節點的存活時間
 
 map = {}  # 用來存放節點的 IP 和狀態
@@ -48,7 +50,6 @@ def listen_for_nodes(callback):
                     if len(parts) == 3:
                         _, node_ip, status = parts
                         busy = status != "idle"
-                        map[node_ip] = COUNTDOWN
                         callback(node_ip, busy)
             except OSError as e:
                 print(f"Node listening error: {e}")
@@ -78,18 +79,40 @@ def listen_for_completions():
                 break
     finally:
         sock.close()
+        
+def listen_for_node_info():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        sock.bind(('', INFO_PORT))
+        print("[DISCOVERY] Listening for node status...")
+        while True:
+            try:
+                data, _ = sock.recvfrom(1024)
+                msg = data.decode()
+                if msg.startswith(NODE_INFO):
+                    parts = msg.split('|')
+                    if len(parts) == 4:
+                        _, node_ip, cpu_usage, mem_usage = parts
+                        print(f"[DISCOVERY] Node {node_ip} CPU: {cpu_usage}, Memory: {mem_usage}")
+                        map[node_ip] = (cpu_usage, mem_usage, COUNTDOWN)
+            except OSError as e:
+                print(f"Node status listening error: {e}")
+                break
+    finally:
+        sock.close()
 
-def countdown():
+def countdown_nodes():
     while True:
         time.sleep(1)
         for ip in list(map.keys()):
-            map[ip] -= 1
-            if map[ip] <= 0:
+            map[ip][2] -= 1
+            if map[ip][2] <= 0:
                 del map[ip]
-                print(f"[DISCOVERY] Node {ip} timed out and removed from the list.")
+                print(f"[DISCOVERY] Node {ip} timed out and removed from registry.")
 
 def start_discovery(callback):
     threading.Thread(target=broadcast_ip, daemon=True).start()
     threading.Thread(target=listen_for_nodes, args=(callback,), daemon=True).start()
     threading.Thread(target=listen_for_completions, daemon=True).start()
-    threading.Thread(target=countdown, daemon=True).start()
+    threading.Thread(target=listen_for_node_info, daemon=True).start()
+    threading.Thread(target=countdown_nodes, daemon=True).start()
