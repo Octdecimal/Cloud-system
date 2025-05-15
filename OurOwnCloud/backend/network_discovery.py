@@ -24,6 +24,8 @@ NODE_INFO = "USAGE_DATA"
 COUNTDOWN = 30 # 節點的存活時間
 
 nodes = {}# 用來存放節點的 IP 和狀態
+nodes["192.168.0.101"] = NodeInfo(ip="192.168.0.101", cpu_usage="15%", mem_usage="45%", countdown=300)
+
 
 def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
