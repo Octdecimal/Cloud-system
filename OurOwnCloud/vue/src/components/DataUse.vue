@@ -11,9 +11,9 @@
       </thead>
       <tbody>
         <tr v-for="(node, ip) in nodeUsage" :key="ip">
-          <td class="p-2 border-b">{{ ip }}</td>
-          <td class="p-2 border-b">{{ node[0] || 'N/A' }}</td>
-          <td class="p-2 border-b">{{ node[1] || 'N/A' }}</td>
+          <td class="p-2 border-b">{{ node.ip }}</td>
+          <td class="p-2 border-b">{{ node.cpu_usage }}</td>
+          <td class="p-2 border-b">{{ node.mem_usage }}</td>
         </tr>
       </tbody>
     </table>
@@ -33,7 +33,6 @@ export default {
         const response = await fetch('http://172.17.0.2:8000/node_usage');
         const text = await response.text();
         console.log("Response content:", text);
-
         let data = {};
         try {
           data = JSON.parse(text);
@@ -41,7 +40,6 @@ export default {
           console.error("Failed to parse JSON:", e);
         }
         this.nodeUsage = data;
-
       } catch (error) {
         console.error("Error fetching node usage:", error);
       }
