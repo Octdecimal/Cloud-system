@@ -4,6 +4,15 @@ import time
 from task_assign import assign_task
 from node_registry import add_node, get_nodes, set_node_status
 from fastapi import APIRouter
+from dataclasses import dataclass
+
+@dataclass
+class NodeInfo:
+    ip: str
+    cpu_usage: str
+    mem_usage: str
+    countdown: int
+
 
 BROADCAST_PORT = 50000
 COMPLETION_PORT = 50001  # 新增的接收完成通知用 port
@@ -14,7 +23,7 @@ COMPLETION_MESSAGE = "TASK_DONE"
 NODE_INFO = "USAGE_DATA"
 COUNTDOWN = 30 # 節點的存活時間
 
-map = {}  # 用來存放節點的 IP 和狀態
+nodes = {}# 用來存放節點的 IP 和狀態
 
 def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -94,7 +103,9 @@ def listen_for_node_info():
                     if len(parts) == 4:
                         _, node_ip, cpu_usage, mem_usage = parts
                         print(f"[DISCOVERY] Node {node_ip} CPU: {cpu_usage}, Memory: {mem_usage}")
-                        map[node_ip] = (cpu_usage, mem_usage, COUNTDOWN)
+                        nodes[node_ip][0] = cpu_usage
+                        nodes[node_ip][1] = mem_usage
+                        nodes[node_ip][2] = COUNTDOWN
             except OSError as e:
                 print(f"Node status listening error: {e}")
                 break
@@ -104,15 +115,15 @@ def listen_for_node_info():
 def countdown_nodes():
     while True:
         time.sleep(1)
-        for ip in list(map.keys()):
-            map[ip][2] -= 1
-            if map[ip][2] <= 0:
-                map[ip][0] = None
-                map[ip][1] = None
-                print(f"[DISCOVERY] Node {ip} timed out and removed from registry.")
+        for ip in list(nodes.keys()):
+            if nodes[ip][2] > 0:
+                nodes[ip][2] -= 1
+            else:
+                print(f"[DISCOVERY] Node {ip} is no longer available.")
+                del nodes[ip]
 
 def assign_2_node():
-    for ip in map.keys():
+    for ip in nodes.keys():
         usable_node = get_nodes()
         if ip in usable_node:
             print(f"[DISCOVERY] Assigning task to node {ip}")
@@ -130,4 +141,4 @@ def start_discovery(callback):
 router = APIRouter()
 @router.get("/node_usage")
 async def get_node_usage():
-    return map
+    return nodes
