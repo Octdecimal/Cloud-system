@@ -1,29 +1,29 @@
-FROM node:18-alpine AS frontend_builder
-WORKDIR /app
-COPY vue/ ./
-RUN npm install && npm run build
-
-FROM python:3.9-slim AS backend_builder
-RUN apt-get update && \
-    apt-get install -y ffmpeg libsndfile1 && \
-    rm -rf /var/lib/apt/lists/*
+FROM python:3.12-slim AS backend
 
 WORKDIR /backend
-COPY backend/ ./
-RUN pip install --no-cache-dir pydub librosa soundfile numpy fastapi uvicorn
 
-FROM python:3.9-slim
-WORKDIR /app
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy backend and frontend
-COPY --from=backend_builder /backend /app/backend
-COPY --from=frontend_builder /app/dist /app/frontend
+COPY backend/ .
 
-# Create uploads volume
-VOLUME ["/uploads"]
+FROM node:18 AS frontend
 
-# Expose backend port
-EXPOSE 8000
+WORKDIR /vue
 
-# Start backend server
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+COPY vue/package.json vue/package-lock.json ./
+RUN npm install
+
+COPY vue/ .
+
+FROM python:3.12-slim
+
+WORKDIR /
+
+COPY --from=backend /backend /backend
+COPY --from=frontend /vue /vue
+COPY start.sh /start.sh
+
+RUN chmod +x /start.sh
+
+CMD ["/start.sh"]

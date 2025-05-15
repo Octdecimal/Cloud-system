@@ -2,7 +2,7 @@
 librosa==0.10.2.post1
 pydub==0.25.1
 soundfile==0.12.1
-scipy==2.0.1
+scipy==1.11.3
 numpy>=1.23
 
 # Web Framework
@@ -12,10 +12,6 @@ uvicorn==0.29.0
 # Machine Learning (Optional for AI-driven music analysis)
 tensorflow==2.18.1
 scikit-learn
-
-# Cloud Storage & File Management
-boto3==1.28.0  # For AWS S3
-firebase-admin==6.2.0  # For Firebase
 
 # Background Task Processing
 celery==5.3.1
