@@ -30,12 +30,20 @@ export default {
   methods: {
     async fetchNodeUsage() {
       try {
-        const response = await fetch('http:172.17.0.2:8000/node_usage');
-        const data = await response.json();
+        const response = await fetch('http://172.17.0.2:8000/node_usage');
+        const text = await response.text();
+        console.log("Response content:", text);
+
+        let data = {};
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          console.error("Failed to parse JSON:", e);
+        }
         this.nodeUsage = data;
+
       } catch (error) {
         console.error("Error fetching node usage:", error);
-        console.log("Response content:", await response.text());
       }
     }
   },
