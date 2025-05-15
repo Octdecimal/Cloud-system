@@ -75,8 +75,10 @@ def monitor_system_usage():
         try: 
             # Run the top command and get the output
             cpu_usage, mem_usage = get_system_usage()
-            print(f"[NODE] CPU: {cpu_usage}, Memory: {mem_usage}")
-            send_usage_data(cpu_usage, mem_usage)
+            cpu_line = f"{cpu_usage}%"
+            mem_line = f"{mem_usage}%"
+            print(f"[NODE] CPU: {cpu_line}, Memory: {mem_line}")
+            send_usage_data(cpu_line, mem_line)
         except Exception as e:
             print(f"[ERROR] Monitoring error: {e}")
         
