@@ -21,6 +21,7 @@ import DataUse from './components/DataUse.vue';
 export default {
   components: {
     FileUpload,
+    DataUse,
   },
 };
 </script>

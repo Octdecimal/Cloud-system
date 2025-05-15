@@ -177,9 +177,11 @@ def simulate_mashup(task_id):
 
 
 if __name__ == "__main__":
-    threading.Thread(target=listen_for_server, daemon=True).start()
+    # threading.Thread(target=listen_for_server, daemon=True).start()
     threading.Thread(target=monitor_system_usage, daemon=True).start()
     threading.Thread(target=listen_4_assignment, daemon=True).start()
     
     while True:
+        if SERVER_IP is None:
+            listen_for_server()
         time.sleep(1)
