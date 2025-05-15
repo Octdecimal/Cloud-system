@@ -45,7 +45,10 @@ def listen_for_server():
                 _, server_ip = msg.split('|')
                 SERVER_IP = server_ip
                 print(f"[NODE] Discovered server at {SERVER_IP}")
-                identity_2_server()
+                # Notify server of presence
+                notify_server()
+                # Simulate mashup
+                simulate_mashup()
         except OSError as e:
             print(f"Server discovery error: {e}")
             break
