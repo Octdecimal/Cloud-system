@@ -7,4 +7,9 @@ computeNode:
     docker run -it --name node2 compute
 
 
-    
+webNode:
+    build:
+    docker build -f ./Dockerfile.2 -t web .
+
+    run:
+    docker run -p 5137:5137 -it --name web web

@@ -25,8 +25,10 @@ COPY --from=backend /backend /backend
 COPY --from=frontend /vue /vue
 COPY start.sh /start.sh
 
-# Ensure npm and uvicorn are installed in the final stage
-RUN pip install uvicorn
+# Ensure npm, uvicorn, and FastAPI are installed in the final stage
+RUN pip install --no-cache-dir uvicorn fastapi
+
+# Install npm globally
 RUN apt-get update && apt-get install -y nodejs npm
 
 RUN chmod +x /start.sh
