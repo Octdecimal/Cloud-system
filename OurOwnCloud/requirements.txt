@@ -1,14 +1,9 @@
 
-
 # Web Framework
 fastapi==0.111.0
 uvicorn==0.29.0
 
 
-
-# Cloud Storage & File Management
-boto3==1.28.0  # For AWS S3
-firebase-admin==6.2.0  # For Firebase
 
 # Background Task Processing
 celery==5.3.1

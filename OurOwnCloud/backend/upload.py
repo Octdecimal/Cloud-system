@@ -31,7 +31,7 @@ async def upload_files(files: List[UploadFile] = File(...)):
                 f.write(await file.read())
 
         register_task(folder)
-        assign_task()
+        # assign_task()
         return {"message": "Uploaded", "folder": folder}
     
     except Exception as e:

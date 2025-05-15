@@ -7,7 +7,7 @@ TASK_INPUT_DIR = "/uploads"
 ASSIGN_PORT = 50002
 ASSIGN_MESSAGE = "ASSIGN_TASK"
 
-def assign_task():
+def assign_task(ip = None):
     waiting_tasks = get_waiting_tasks()
     if not waiting_tasks:
         return False
@@ -19,8 +19,10 @@ def assign_task():
     for task_id in waiting_tasks:
         # Find the first available node
         for node in nodes:
-            # Assign the task to this node
             node_ip = node["ip"]
+            # Assign the task to this node
+            if ip:
+                node_ip = ip
             task_input_path = os.path.join(TASK_INPUT_DIR, task_id)
             task_data = f"{ASSIGN_MESSAGE}|{task_id}|{task_input_path}"
             
