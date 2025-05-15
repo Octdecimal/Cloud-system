@@ -180,3 +180,6 @@ if __name__ == "__main__":
     threading.Thread(target=listen_for_server, daemon=True).start()
     threading.Thread(target=monitor_system_usage, daemon=True).start()
     threading.Thread(target=listen_4_assignment, daemon=True).start()
+    
+    while True:
+        time.sleep(1)
