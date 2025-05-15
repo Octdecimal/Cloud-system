@@ -58,7 +58,7 @@ export default {
       });
 
       try {
-        const response = await fetch("http://127.0.0.2:8000/upload", {
+        const response = await fetch("http://127.17.0.2:8000/upload", {
           method: "POST",
           body: formData,
         });
@@ -82,7 +82,7 @@ export default {
     },
     async fetchTasks() {
       try {
-        const response = await fetch("http://127.0.0.2:8000/status");
+        const response = await fetch("http://127.17.0.2:8000/status");
         if (!response.ok) {
           console.error(`Failed to load task status. Status: ${response.status}`);
           alert(`Failed to load task status. Status: ${response.status}`);
@@ -98,7 +98,7 @@ export default {
     },
     async removeTask(taskId) {
       try {
-        const response = await fetch(`http://127.0.0.2:8000/remove/${taskId}`, {
+        const response = await fetch(`http://127.17.0.2:8000/remove/${taskId}`, {
           method: "DELETE",
         });
 
@@ -116,7 +116,7 @@ export default {
     },
     async downloadResult(filePath) {
       // 假設你有設計一個 /download API 提供檔案下載
-      const url = `http://127.0.0.2:8000${filePath}`;
+      const url = `http://127.17.0.2:8000${filePath}`;
       window.open(url, "_blank");
     },
   },

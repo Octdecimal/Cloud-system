@@ -12,4 +12,4 @@ webNode:
     docker build -f ./Dockerfile.2 -t web .
 
     run:
-    docker run -p 5137:5137 -it -v /uploads -v ./backend:/backend -v ./vue:/vue --name web web
+    docker run -p 8000:8000 -p 5137:5137 -it -v /uploads -v ./backend:/backend -v ./vue:/vue --name web --restart unless-stopped web
