@@ -128,6 +128,6 @@ def start_discovery(callback):
     threading.Thread(target=assign_2_node, daemon=True).start()
     
 router = APIRouter()
-@router.get("/node-usage")
+@router.get("/node_usage")
 async def get_node_usage():
     return map
