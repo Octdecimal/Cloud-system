@@ -30,7 +30,7 @@ export default {
   methods: {
     async fetchNodeUsage() {
       try {
-        const response = await fetch('/node_usage');
+        const response = await fetch('http:172.17.0.2:8000/node_usage');
         const data = await response.json();
         this.nodeUsage = data;
       } catch (error) {
