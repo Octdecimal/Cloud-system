@@ -68,6 +68,7 @@ def monitor_system_usage():
             cpu_line = lines[2]
             mem_line = lines[3]
             # Send data to server
+            print(f"[NODE] CPU: {cpu_line}, Memory: {mem_line}")
             send_usage_data(cpu_line, mem_line)
         except Exception as e:
             print(f"[ERROR] Monitoring error: {e}")
