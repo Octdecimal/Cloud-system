@@ -42,7 +42,7 @@ export default {
   },
   mounted() {
     this.fetchNodeUsage();
-    setInterval(this.fetchNodeUsage, 5000);
+    setInterval(this.fetchNodeUsage, 1500);
   }
 };
 </script>

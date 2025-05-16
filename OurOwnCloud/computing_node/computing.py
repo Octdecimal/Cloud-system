@@ -83,7 +83,7 @@ def monitor_system_usage():
         except Exception as e:
             print(f"[ERROR] Monitoring error: {e}")
         
-        time.sleep(5)  # Adjust the interval as needed
+        time.sleep(1)  # Adjust the interval as needed
         
 def send_usage_data(cpu_line, mem_line):
     if SERVER_IP:
