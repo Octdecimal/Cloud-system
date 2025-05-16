@@ -21,7 +21,7 @@ def assign_task(ip = None):
         for node in nodes:
             node_ip = node["ip"]
             # Assign the task to this node
-            if ip:
+            if ip == None:
                 node_ip = ip
             task_input_path = os.path.join(TASK_INPUT_DIR, task_id)
             task_data = f"{ASSIGN_MESSAGE}|{task_id}|{task_input_path}"
