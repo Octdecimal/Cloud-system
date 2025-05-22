@@ -175,15 +175,19 @@ def mix_audio_files(input_files, output_path):
 def simulate_mashup(task_id):
     print("[NODE] Simulating mashup task...")
     input_files = []
+    task_path = os.path.join(UPLOAD_DIR, task_id)
+    if not os.path.exists(task_path):
+        print(f"[ERROR] Task path {task_path} does not exist.")
+        return
     for i in range(2):
-        path = os.path.join(UPLOAD_DIR, f"audio{i+1}.mp3")
+        path = os.path.join(task_path, f"input_{i}.mp3")
         if not os.path.exists(path):
             print(f"[WARN] Missing {path}, creating silent track")
             silent = AudioSegment.silent(duration=3000)
             silent.export(path, format="mp3")
         input_files.append(path)
 
-    output_path = os.path.join(UPLOAD_DIR, f"{task_id}.mp3")
+    output_path = os.path.join(task_path, f"output_{task_id}.mp3")
     mix_audio_files(input_files, output_path)
 
 def coutdown():
