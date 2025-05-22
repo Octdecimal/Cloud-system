@@ -9,5 +9,5 @@ UPLOAD_DIR = "/uploads"
 def download_file(task_id: str, filename: str):
     file_path = os.path.join(UPLOAD_DIR, task_id, filename)
     if not os.path.exists(file_path):
-        return {"error": "File not found"}
+        return {f"error": "File path {file_path} not found"}
     return FileResponse(file_path, filename=filename)
