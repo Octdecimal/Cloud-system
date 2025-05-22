@@ -45,10 +45,7 @@ def listen_for_server():
                 _, server_ip = msg.split('|')
                 SERVER_IP = server_ip
                 print(f"[NODE] Discovered server at {SERVER_IP}")
-                # Notify server of presence
-                notify_server()
-                # Simulate mashup
-                simulate_mashup()
+                identity_2_server()
         except OSError as e:
             print(f"Server discovery error: {e}")
             break
@@ -194,7 +191,17 @@ def coutdown():
         time.sleep(1)
         count_down -= 1
     SERVER_IP = None
-    
+
+def task_done():
+    global SERVER_IP
+    if SERVER_IP:
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            message = f"{COMPLETION_MESSAGE}|{get_local_ip()}"
+            sock.sendto(message.encode(), (SERVER_IP, COMPLETION_PORT))
+            print(f"[NODE] Task completed notification sent to {SERVER_IP}")
+        except Exception as e:
+            print(f"[ERROR] Sending task completion: {e}")
 
 if __name__ == "__main__":
     # threading.Thread(target=listen_for_server, daemon=True).start()

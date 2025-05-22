@@ -84,6 +84,7 @@ def listen_for_completions():
                     if len(parts) == 2:
                         _, node_ip = parts
                         print(f"[DISCOVERY] Task done message from {node_ip}")
+                        set_node_status(node_ip, busy=False)
             except OSError as e:
                 print(f"Completion listening error: {e}")
                 break
@@ -123,12 +124,16 @@ def countdown_nodes():
                 del nodes[ip]
 
 def assign_2_node():
-    for ip in nodes.keys():
-        usable_node = get_nodes()
-        if ip in usable_node:
-            print(f"[DISCOVERY] Assigning task to node {ip}")
-            if assign_task(ip):
-                set_node_status(ip, busy=True)
+    while True:
+        for ip in nodes.keys():
+            usable_node = get_nodes()
+            if ip in usable_node:
+                print(f"[DISCOVERY] Assigning task to node {ip}")
+                if assign_task(ip):
+                    set_node_status(ip, busy=True)
+            
+            time.sleep(1)
+        
 
 def start_discovery(callback):
     threading.Thread(target=broadcast_ip, daemon=True).start()
