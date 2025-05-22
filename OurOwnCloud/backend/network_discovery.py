@@ -82,11 +82,12 @@ def listen_for_completions():
                 msg = data.decode()
                 if msg.startswith(COMPLETION_MESSAGE):
                     parts = msg.split('|')
-                    if len(parts) == 2:
-                        _, node_ip = parts
+                    if len(parts) == 3:
+                        _, task_id, node_ip = parts
                         print(f"[DISCOVERY] Task done message from {node_ip}")
                         set_node_status(node_ip, busy=False)
-                        update_task_status(node_ip, "completed")
+                        result_path = f"/uploads/{task_id}/{task_id}.mp3"
+                        update_task_status(task_id, "done", node_ip, result_path)
             except OSError as e:
                 print(f"Completion listening error: {e}")
                 break

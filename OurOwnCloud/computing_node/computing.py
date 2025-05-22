@@ -188,7 +188,7 @@ def simulate_mashup(task_id):
 
     output_path = os.path.join(task_path, f"{task_id}.mp3")
     mix_audio_files(input_files, output_path)
-    task_done()
+    task_done(task_id)
 
 def coutdown():
     global count_down
@@ -198,12 +198,12 @@ def coutdown():
         count_down -= 1
     SERVER_IP = None
 
-def task_done():
+def task_done(task_id):
     global SERVER_IP
     if SERVER_IP:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            message = f"{COMPLETION_MESSAGE}|{get_local_ip()}"
+            message = f"{COMPLETION_MESSAGE}|{task_id}|{get_local_ip()}"
             sock.sendto(message.encode(), (SERVER_IP, COMPLETION_PORT))
             print(f"[NODE] Task completed notification sent to {SERVER_IP}")
         except Exception as e:
