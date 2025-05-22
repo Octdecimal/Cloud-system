@@ -2,7 +2,6 @@ from fastapi import APIRouter, UploadFile, File
 from typing import List
 import os
 from task_status import register_task
-from task_assign import assign_task
 import hashlib
 import time
 
