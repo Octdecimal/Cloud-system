@@ -132,7 +132,6 @@ def assign_2_node():
             usable_node = get_nodes()
             print(f"[DISCOVERY] Usable nodes: {usable_node}")
             if ip in usable_node:
-                print(f"[DISCOVERY] Assigning task to node {ip}")
                 assign_task(ip)
             
         time.sleep(1)

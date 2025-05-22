@@ -30,11 +30,11 @@ def assign_task(ip):
                     # Update task status and node status
                     update_task_status(task_id, "assigned", node_ip)
                     set_node_status(node_ip, busy = True)
+                    print(f"[DISCOVERY] Assigning task to node {node_ip}")
                     sock.close()
                     break
                 
                 sock.close()
-                    
         except socket.error as e:
             print(f"Error sending task to node {node_ip}: {e}")
             # If the node is busy, continue to the next one
