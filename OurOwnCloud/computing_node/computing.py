@@ -189,6 +189,7 @@ def simulate_mashup(task_id):
 
     output_path = os.path.join(task_path, f"output_{task_id}.mp3")
     mix_audio_files(input_files, output_path)
+    task_done()
 
 def coutdown():
     global count_down
