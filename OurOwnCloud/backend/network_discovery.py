@@ -134,8 +134,7 @@ def assign_2_node():
                 print(f"[DISCOVERY] Assigning task to node {ip}")
                 assign_task(ip)
             
-            time.sleep(1)
-        
+        time.sleep(1)
 
 def start_discovery(callback):
     threading.Thread(target=broadcast_ip, daemon=True).start()
