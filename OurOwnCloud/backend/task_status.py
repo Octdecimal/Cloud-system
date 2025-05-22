@@ -9,18 +9,6 @@ router = APIRouter()
 # In-memory task registry
 task_queue: Dict[str, Dict] = {}
 
-def all_tasks_search():
-    # search all folders in the UPLOAD_DIR
-    for folder in os.listdir(UPLOAD_DIR):
-        folder_path = os.path.join(UPLOAD_DIR, folder)
-        if os.path.isdir(folder_path):
-            # check if exitst a file in the folder with same name
-            for file in os.listdir(folder_path):
-                if file == folder:
-                    task_queue[folder] = {"status": "done", "node": None, "result": {file}}
-                else:
-                    task_queue[folder] = {"status": "waiting", "node": None, "result": None}
-
 def register_task(task_id: str):
     task_queue[task_id] = {"status": "waiting", "node": None, "result": None}
 

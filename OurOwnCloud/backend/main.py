@@ -29,4 +29,3 @@ app.include_router(node_usage_router)
 
 # Start background discovery
 start_discovery(wrapped_add_node)
-all_tasks_search()
