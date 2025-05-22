@@ -51,12 +51,14 @@ def listen_for_server():
             break
 
 def identity_2_server():
+    global count_down
     if SERVER_IP:
         return_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         msg = f"{DISCOVERY_MESSAGE}|{get_local_ip()}|{NODE_STATUS}"
         return_sock.sendto(msg.encode(), (SERVER_IP, BROADCAST_PORT))
         print(f"[NODE] Notified server at {SERVER_IP} of presence")
         return_sock.close()
+        count_down = COUNT_DOWN
     else:
         print("[NODE] No server IP to notify")
 
@@ -110,10 +112,10 @@ def listen_4_assignment():
                 _, task_id, task_input_path = data.split('|')
                 print(f"[NODE] Received task {task_id} with input path {task_input_path}")
                 NODE_STATUS = "busy"
-                simulate_mashup(task_id)
                 conn.sendall("ACK".encode())
                 count_down = COUNT_DOWN
             conn.close()
+            simulate_mashup(task_id)
         except OSError as e:
             print(f"Assignment error: {e}")
             break

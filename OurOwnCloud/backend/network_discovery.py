@@ -129,8 +129,7 @@ def assign_2_node():
             usable_node = get_nodes()
             if ip in usable_node:
                 print(f"[DISCOVERY] Assigning task to node {ip}")
-                if assign_task(ip):
-                    set_node_status(ip, busy=True)
+                assign_task(ip)
             
             time.sleep(1)
         
