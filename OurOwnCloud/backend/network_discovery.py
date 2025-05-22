@@ -125,7 +125,7 @@ def countdown_nodes():
 
 def assign_2_node():
     while True:
-        for ip in nodes.keys():
+        for ip in list(nodes.keys()):
             usable_node = get_nodes()
             if ip in usable_node:
                 print(f"[DISCOVERY] Assigning task to node {ip}")
