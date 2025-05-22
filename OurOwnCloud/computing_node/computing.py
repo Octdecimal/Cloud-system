@@ -179,15 +179,14 @@ def simulate_mashup(task_id):
     if not os.path.exists(task_path):
         print(f"[ERROR] Task path {task_path} does not exist.")
         return
-    for i in range(2):
-        path = os.path.join(task_path, f"input_{i}.mp3")
-        if not os.path.exists(path):
-            print(f"[WARN] Missing {path}, creating silent track")
-            silent = AudioSegment.silent(duration=3000)
-            silent.export(path, format="mp3")
+    for file in os.listdir(task_path):
+        if file.endswith(".mp3"):
+            path = os.path.join(task_path, file)
+            if os.path.isfile(path):
+                print(f"[NODE] Found input file: {path}")
         input_files.append(path)
 
-    output_path = os.path.join(task_path, f"output_{task_id}.mp3")
+    output_path = os.path.join(task_path, f"{task_id}.mp3")
     mix_audio_files(input_files, output_path)
     task_done()
 

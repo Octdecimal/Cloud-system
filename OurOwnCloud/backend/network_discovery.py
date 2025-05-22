@@ -1,6 +1,7 @@
 import socket
 import threading
 import time
+from task_status import update_task_status
 from task_assign import assign_task
 from node_registry import add_node, get_nodes, set_node_status
 from fastapi import APIRouter
@@ -85,6 +86,7 @@ def listen_for_completions():
                         _, node_ip = parts
                         print(f"[DISCOVERY] Task done message from {node_ip}")
                         set_node_status(node_ip, busy=False)
+                        update_task_status(node_ip, "completed")
             except OSError as e:
                 print(f"Completion listening error: {e}")
                 break

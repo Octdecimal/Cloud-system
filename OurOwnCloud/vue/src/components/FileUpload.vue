@@ -120,6 +120,7 @@ export default {
   },
   mounted() {
     this.fetchTasks();
+    setInterval(this.fetchTasks, 1500);
   },
 };
 </script>
