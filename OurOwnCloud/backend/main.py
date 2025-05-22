@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from upload import router as upload_router
 from task_status import router as status_router
-from task_status import all_tasks_search
 from network_discovery import start_discovery
 from node_registry import add_node as register_node
 from download import router as download_router
