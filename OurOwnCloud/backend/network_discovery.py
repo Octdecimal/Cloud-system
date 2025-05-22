@@ -87,7 +87,7 @@ def listen_for_completions():
                         print(f"[DISCOVERY] Task done message from {node_ip}")
                         set_node_status(node_ip, busy=False)
                         result_path = f"/uploads/{task_id}/{task_id}.mp3"
-                        update_task_status(task_id, "done", node_ip, result_path)
+                        update_task_status(task_id, "done", None, result_path)
             except OSError as e:
                 print(f"Completion listening error: {e}")
                 break
