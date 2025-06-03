@@ -45,21 +45,20 @@ def listen_for_server():
                 _, server_ip = msg.split('|')
                 SERVER_IP = server_ip
                 print(f"[NODE] Discovered server at {SERVER_IP}")
-                # Notify server of presence
-                notify_server()
-                # Simulate mashup
-                simulate_mashup()
+                identity_2_server()
         except OSError as e:
             print(f"Server discovery error: {e}")
             break
 
 def identity_2_server():
+    global count_down
     if SERVER_IP:
         return_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         msg = f"{DISCOVERY_MESSAGE}|{get_local_ip()}|{NODE_STATUS}"
         return_sock.sendto(msg.encode(), (SERVER_IP, BROADCAST_PORT))
         print(f"[NODE] Notified server at {SERVER_IP} of presence")
         return_sock.close()
+        count_down = COUNT_DOWN
     else:
         print("[NODE] No server IP to notify")
 
@@ -83,7 +82,7 @@ def monitor_system_usage():
         except Exception as e:
             print(f"[ERROR] Monitoring error: {e}")
         
-        time.sleep(5)  # Adjust the interval as needed
+        time.sleep(1)  # Adjust the interval as needed
         
 def send_usage_data(cpu_line, mem_line):
     if SERVER_IP:
@@ -113,10 +112,10 @@ def listen_4_assignment():
                 _, task_id, task_input_path = data.split('|')
                 print(f"[NODE] Received task {task_id} with input path {task_input_path}")
                 NODE_STATUS = "busy"
-                simulate_mashup(task_id)
                 conn.sendall("ACK".encode())
                 count_down = COUNT_DOWN
             conn.close()
+            simulate_mashup(task_id)
         except OSError as e:
             print(f"Assignment error: {e}")
             break
@@ -176,16 +175,20 @@ def mix_audio_files(input_files, output_path):
 def simulate_mashup(task_id):
     print("[NODE] Simulating mashup task...")
     input_files = []
-    for i in range(2):
-        path = os.path.join(UPLOAD_DIR, f"audio{i+1}.mp3")
-        if not os.path.exists(path):
-            print(f"[WARN] Missing {path}, creating silent track")
-            silent = AudioSegment.silent(duration=3000)
-            silent.export(path, format="mp3")
+    task_path = os.path.join(UPLOAD_DIR, task_id)
+    if not os.path.exists(task_path):
+        print(f"[ERROR] Task path {task_path} does not exist.")
+        return
+    for file in os.listdir(task_path):
+        if file.endswith(".mp3"):
+            path = os.path.join(task_path, file)
+            if os.path.isfile(path):
+                print(f"[NODE] Found input file: {path}")
         input_files.append(path)
 
-    output_path = os.path.join(UPLOAD_DIR, f"{task_id}.mp3")
+    output_path = os.path.join(task_path, f"{task_id}.mp3")
     mix_audio_files(input_files, output_path)
+    task_done(task_id)
 
 def coutdown():
     global count_down
@@ -194,7 +197,17 @@ def coutdown():
         time.sleep(1)
         count_down -= 1
     SERVER_IP = None
-    
+
+def task_done(task_id):
+    global SERVER_IP
+    if SERVER_IP:
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            message = f"{COMPLETION_MESSAGE}|{task_id}|{get_local_ip()}"
+            sock.sendto(message.encode(), (SERVER_IP, COMPLETION_PORT))
+            print(f"[NODE] Task completed notification sent to {SERVER_IP}")
+        except Exception as e:
+            print(f"[ERROR] Sending task completion: {e}")
 
 if __name__ == "__main__":
     # threading.Thread(target=listen_for_server, daemon=True).start()

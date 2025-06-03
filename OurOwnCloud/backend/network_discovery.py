@@ -1,6 +1,7 @@
 import socket
 import threading
 import time
+from task_status import update_task_status
 from task_assign import assign_task
 from node_registry import add_node, get_nodes, set_node_status
 from fastapi import APIRouter
@@ -81,9 +82,12 @@ def listen_for_completions():
                 msg = data.decode()
                 if msg.startswith(COMPLETION_MESSAGE):
                     parts = msg.split('|')
-                    if len(parts) == 2:
-                        _, node_ip = parts
+                    if len(parts) == 3:
+                        _, task_id, node_ip = parts
                         print(f"[DISCOVERY] Task done message from {node_ip}")
+                        set_node_status(node_ip, busy=False)
+                        result_path = f"/uploads/{task_id}/{task_id}.mp3"
+                        update_task_status(task_id, "done", None, result_path)
             except OSError as e:
                 print(f"Completion listening error: {e}")
                 break
@@ -123,12 +127,14 @@ def countdown_nodes():
                 del nodes[ip]
 
 def assign_2_node():
-    for ip in nodes.keys():
-        usable_node = get_nodes()
-        if ip in usable_node:
-            print(f"[DISCOVERY] Assigning task to node {ip}")
-            if assign_task(ip):
-                set_node_status(ip, busy=True)
+    while True:
+        for ip in list(nodes.keys()):
+            usable_node = get_nodes()
+            print(f"[DISCOVERY] Usable nodes: {usable_node}")
+            if ip in usable_node:
+                assign_task(ip)
+            
+        time.sleep(1)
 
 def start_discovery(callback):
     threading.Thread(target=broadcast_ip, daemon=True).start()
