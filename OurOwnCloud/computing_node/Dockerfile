@@ -10,6 +10,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 # 複製程式與依賴
+COPY audio_processing.py /app/
 COPY computing.py /app/
 COPY requirements.txt /app/
 
@@ -17,4 +18,4 @@ COPY requirements.txt /app/
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # 設定開機後執行的指令
-CMD ["python", "computing.py"]
+#CMD ["python", "computing.py"]

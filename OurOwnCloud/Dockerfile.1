@@ -1,20 +1,24 @@
-FROM python:3.12-slim
+FROM python:3.8-slim
 
 # Install system-level dependencies
 RUN apt-get update && \
-    apt-get install -y ffmpeg libsndfile1 procps && \
+    apt-get install -y ffmpeg libsndfile1 procps build-essential python3-dev && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # Copy the Python script
 COPY computing_node/computing.py /app/computing.py
+COPY computing_node/audio_processing.py /app/audio_processing.py
+COPY computing_node/requirements.txt /app/requirements.txt
 
 # Create upload directory
 RUN mkdir -p /uploads
 
 # Install Python dependencies
+RUN pip install --upgrade pip setuptools
 RUN pip install --no-cache-dir \
+    pyloudnorm \
     pydub \
     librosa \
     soundfile \
@@ -22,7 +26,9 @@ RUN pip install --no-cache-dir \
     scipy \
     audioread \
     resampy \
+    spleeter \
     psutil
+
 
 # Default command to run the computing script
 CMD ["python", "/app/computing.py"]

@@ -1,3 +1,4 @@
+from audio_processing import mix_tracks
 import socket
 import threading
 import os
@@ -173,21 +174,15 @@ def mix_audio_files(input_files, output_path):
 
 
 def simulate_mashup(task_id):
-    print("[NODE] Simulating mashup task...")
-    input_files = []
     task_path = os.path.join(UPLOAD_DIR, task_id)
-    if not os.path.exists(task_path):
-        print(f"[ERROR] Task path {task_path} does not exist.")
+    input_files = [os.path.join(task_path,f)
+                   for f in os.listdir(task_path) if f.endswith(".mp3")]
+    output_file = os.path.join(task_path, f"{task_id}.mp3")
+    try:
+        mix_tracks(input_files, output_file)
+    except Exception as e:
+        print(f"[ERROR] mix_tracks: {e}")
         return
-    for file in os.listdir(task_path):
-        if file.endswith(".mp3"):
-            path = os.path.join(task_path, file)
-            if os.path.isfile(path):
-                print(f"[NODE] Found input file: {path}")
-        input_files.append(path)
-
-    output_path = os.path.join(task_path, f"{task_id}.mp3")
-    mix_audio_files(input_files, output_path)
     task_done(task_id)
 
 def coutdown():

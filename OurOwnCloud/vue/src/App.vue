@@ -1,56 +1,37 @@
 <template>
-  <div id="app">
-    <header>
-      <h1>Distributed Computing Dashboard</h1>
-    </header>
-    <main class="content">
-      <section class="upload-panel">
-        <FileUpload />
-      </section>
-      <section class="data-use-panel">
-        <DataUse />
-      </section>
-    </main>
+  <div class="container">
+    <h1>線上音樂混音平台</h1>
+    <div class="card">
+      <UploadFiles @uploaded="loadTasks" />
+    </div>
+    <div class="card" v-if="tasks.length">
+      <TaskList :tasks="tasks" @refresh="loadTasks" />
+    </div>
+    <div v-else class="card" style="text-align:center; color:#999">
+      目前尚無任務，請先上傳檔案。
+    </div>
   </div>
 </template>
 
-<script>
-import FileUpload from './components/FileUpload.vue';
-import DataUse from './components/DataUse.vue';
+<script setup>
+import { ref, onMounted } from 'vue'
+import api from './api.js'
+import UploadFiles from './components/UploadFiles.vue'
+import TaskList    from './components/TaskList.vue'
 
-export default {
-  components: {
-    FileUpload,
-    DataUse,
-  },
-};
+const tasks = ref([])
+
+async function loadTasks() {
+  try {
+    const res = await api.get('/status')
+    tasks.value = Object.entries(res.data.tasks).map(([id,t])=> ({
+      id, status:t.status, node:t.node, result:t.result
+    }))
+  }
+  catch(e){
+    console.error(e)
+  }
+}
+
+onMounted(loadTasks)
 </script>
-
-<style>
-#app {
-  font-family: Arial, sans-serif;
-  color: #2c3e50;
-  padding: 20px;
-}
-
-header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.content {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  flex-wrap: wrap;
-}
-
-.upload-panel, .data-use-panel {
-  flex: 1 1 300px;
-  max-width: 400px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-</style>
