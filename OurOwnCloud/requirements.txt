@@ -3,8 +3,6 @@
 fastapi==0.111.0
 uvicorn==0.29.0
 
-
-
 # Background Task Processing
 celery==5.3.1
 redis==5.0.0  # Task queue backend
