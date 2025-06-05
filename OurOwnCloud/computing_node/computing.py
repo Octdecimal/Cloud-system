@@ -1,4 +1,4 @@
-from audio_processing import mix_tracks
+from audio_processing import splice_choruses
 import socket
 import threading
 import os
@@ -174,16 +174,32 @@ def mix_audio_files(input_files, output_path):
 
 
 def simulate_mashup(task_id):
+    """
+    原本是呼 mix_tracks，現在改成 splice_choruses。
+    """
     task_path = os.path.join(UPLOAD_DIR, task_id)
-    input_files = [os.path.join(task_path,f)
-                   for f in os.listdir(task_path) if f.endswith(".mp3")]
+    # 抓所有 .mp3（不含自己輸出檔）
+    input_files = [
+        os.path.join(task_path, f)
+        for f in os.listdir(task_path)
+        if f.lower().endswith(".mp3") and f != f"{task_id}.mp3"
+    ]
     output_file = os.path.join(task_path, f"{task_id}.mp3")
     try:
-        mix_tracks(input_files, output_file)
+        # 這裡改用 splice_choruses
+        splice_choruses(
+            input_paths=input_files,
+            output_path=output_file,
+            segment_sec=20.0,    # 每首取 20 秒高潮
+            lead_in_sec=5.0,     # 前置 5 秒
+            crossfade_ms=2000    # 2 秒淡入淡出
+        )
+        print(f"[NODE] Splice done, saved to {output_file}")
     except Exception as e:
-        print(f"[ERROR] mix_tracks: {e}")
+        print(f"[ERROR] splice_choruses: {e}")
         return
     task_done(task_id)
+
 
 def coutdown():
     global count_down

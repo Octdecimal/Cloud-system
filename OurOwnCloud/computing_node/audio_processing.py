@@ -7,107 +7,65 @@ from pydub import AudioSegment, effects
 from spleeter.separator import Separator
 import pyloudnorm as pyln
 
-def separate_stems(input_path, out_dir, stems="2stems"):
+# … 你原本的所有函式（separate_stems, analyze_track, load_and_analyze,
+#    match_tempo_and_key, normalize_loudness, mix_tracks, _simple_overlay）都不變 …
+
+def extract_loudest_segment(path,
+                            segment_sec: float = 20.0,
+                            lead_in_sec: float = 5.0,
+                            hop_length: int = 512):
     """
-    使用 Spleeter 做 Stem 分離（vocals / accompaniment）。
+    找出最高潮段（能量最高的 segment_sec 秒），
+    前面再保留 lead_in_sec 做鋪陳，輸出暫存 wav，回傳路徑。
     """
-    os.makedirs(out_dir, exist_ok=True)
-    separator = Separator(f'spleeter:{stems}')
-    separator.separate_to_file(input_path, out_dir)
-    # 回傳分離後的主 stem
-    stem = os.path.join(
-        out_dir,
-        os.path.basename(input_path).replace('.mp3', ''),
-        'accompaniment.wav'
-    )
-    return stem if os.path.exists(stem) else input_path
-
-def analyze_track(y, sr):
-    """
-    回傳 BPM(float)、調性(int)、響度(LUFS, float)。
-    """
-    # 1. 節拍 / BPM
-    tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
-    tempo = float(tempo)
-
-    # 2. 調性 (chroma)
-    chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
-    # chroma.shape = (12, frames)，對每列求平均
-    chroma_mean = np.mean(chroma, axis=1)
-    key_index = int(np.argmax(chroma_mean))
-
-    # 3. 響度 (LUFS)
-    meter = pyln.Meter(sr)
-    loudness = meter.integrated_loudness(y)
-    loudness = float(loudness)
-
-    return tempo, key_index, loudness
-
-def load_and_analyze(path):
     y, sr = librosa.load(path, sr=None, mono=True)
-    return y, sr, analyze_track(y, sr)
+    # 短時 STFT → magnitude → RMS
+    S, _ = librosa.magphase(librosa.stft(y))
+    rms = librosa.feature.rms(S=S, hop_length=hop_length)[0]
+    times = librosa.frames_to_time(np.arange(len(rms)), sr=sr, hop_length=hop_length)
 
-def match_tempo_and_key(y, sr, src_tempo, src_key, target_tempo, target_key):
-    """
-    先做 tempo time-stretch，再做 key pitch-shift。
-    """
-    # Rate 必須用 keyword 傳
-    rate = float(target_tempo / src_tempo) if src_tempo > 0 else 1.0
-    y_ts = time_stretch(y=y, rate=rate)
+    win = int(segment_sec * sr / hop_length)
+    if win >= len(rms):
+        start = 0.0
+    else:
+        energy = np.convolve(rms, np.ones(win), mode='valid')
+        idx = int(np.argmax(energy))
+        start = times[idx]
 
-    # Key shift steps
-    n_steps = int(target_key - src_key)
-    y_shift = pitch_shift(y=y_ts, sr=sr, n_steps=n_steps)
+    t0 = max(0.0, start - lead_in_sec)
+    t1 = min(len(y)/sr, start + segment_sec)
+    s0, s1 = int(t0*sr), int(t1*sr)
+    y_seg = y[s0:s1]
 
-    return y_shift
+    basename = os.path.splitext(os.path.basename(path))[0]
+    tmp = f"/tmp/chorus_{basename}.wav"
+    os.makedirs(os.path.dirname(tmp), exist_ok=True)
+    sf.write(tmp, y_seg, sr)
+    return tmp
 
-def normalize_loudness(y, sr, target_lufs=-14.0):
+def splice_choruses(input_paths,
+                    output_path: str,
+                    segment_sec: float = 20.0,
+                    lead_in_sec: float = 5.0,
+                    crossfade_ms: int = 2000):
     """
-    使用 pyloudnorm 正規化響度。
-    """
-    meter = pyln.Meter(sr)
-    orig_loudness = meter.integrated_loudness(y)
-    # pysoundfile 跟 pydub 都能吃 numpy array
-    y_norm = pyln.normalize.loudness(y, orig_loudness, target_lufs)
-    return y_norm
-
-def mix_tracks(input_paths, output_path):
-    """
-    全流程：stem 分離 → 分析 BPM/key/loudness
-    → 轉調 / 時間拉伸 / 響度正規化
-    → Pydub overlay + 交叉淡出 → 輸出 mp3
+    1. 對每支 input_path 擷取最高潮段（extract_loudest_segment）
+    2. 用 crossfade_ms 淡入淡出串接
+    3. normalize & export mp3
     """
     if not input_paths:
-        raise ValueError("No input files to mix.")
+        raise ValueError("No input files to splice.")
 
-    # 1. 分析第一軌做基準
-    y0, sr0, (bpm0, key0, lufs0) = load_and_analyze(input_paths[0])
-    processed_files = []
+    segments = []
+    for p in input_paths:
+        tmpwav = extract_loudest_segment(p, segment_sec, lead_in_sec)
+        segments.append(AudioSegment.from_file(tmpwav))
 
-    # 2. 對每條音軌做處理
-    for path in input_paths:
-        stem = separate_stems(path, out_dir="/tmp/spleeter_out")
-        y, sr, (bpm, key, lufs) = load_and_analyze(stem)
+    out = segments[0]
+    for seg in segments[1:]:
+        out = out.append(seg, crossfade=crossfade_ms)
 
-        # Tempo + Key match
-        y2 = match_tempo_and_key(y, sr, bpm, key, bpm0, key0)
-
-        # Loudness normalize
-        y3 = normalize_loudness(y2, sr, target_lufs=lufs0)
-
-        # 暫存成 wav
-        tmp_path = stem.replace('.wav', '_proc.wav')
-        sf.write(tmp_path, y3, sr)
-        processed_files.append(tmp_path)
-
-    # 3. Pydub 交疊 + 交叉淡出
-    tracks = [AudioSegment.from_file(f) for f in processed_files]
-    base = tracks[0]
-    for tr in tracks[1:]:
-        base = base.append(tr, crossfade=2000)  # 2 秒交叉淡出
-
-    # 4. 最後整段 normalize
-    base = effects.normalize(base)
-    base.export(output_path, format="mp3")
-
+    out = effects.normalize(out)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    out.export(output_path, format="mp3")
     return output_path
