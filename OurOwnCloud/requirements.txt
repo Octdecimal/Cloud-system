@@ -1,7 +1,7 @@
 
 # Web Framework
-fastapi==0.111.0
-uvicorn==0.29.0
+#fastapi==0.111.0
+#uvicorn==0.29.0
 
 # Background Task Processing
 celery==5.3.1
@@ -11,7 +11,7 @@ redis==5.0.0  # Task queue backend
 websockets==11.0.0
 
 # Logging & Utility
-loguru==0.7.0
-python-dotenv==1.0.0
-requests==2.31.0
-python-multipart
+#loguru==0.7.0
+#python-dotenv==1.0.0
+#requests==2.31.0
+#python-multipart

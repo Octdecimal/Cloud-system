@@ -1,3 +1,6 @@
+docker network setting:
+	`docker network create mashup_net`
+
 computeNode:  
     build:  
     `docker build -f ./Dockerfile.1 -t compute .`  

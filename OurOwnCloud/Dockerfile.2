@@ -1,9 +1,9 @@
-FROM node:18 AS frontend
+#FROM node:18 AS frontend
 
-WORKDIR /vue
+#WORKDIR /vue
 
-COPY vue/package.json vue/package-lock.json ./
-RUN npm install
+#COPY vue/package.json vue/package-lock.json ./
+#RUN npm install
 
 #COPY vue/ .
 
@@ -13,7 +13,7 @@ WORKDIR /
 
 # Copy backend and frontend files
 COPY ./backend /backend
-COPY --from=frontend /vue /vue
+#COPY --from=frontend /vue /vue
 COPY start.sh /start.sh
 
 # Ensure npm, uvicorn, and FastAPI are installed in the final stage
@@ -21,7 +21,8 @@ COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install npm globally
-RUN apt-get update && apt-get install -y nodejs npm screen
+RUN apt-get update
+# && apt-get install -y nodejs npm screen
 
 RUN chmod +x /start.sh
 

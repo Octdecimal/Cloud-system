@@ -1,0 +1,27 @@
+FROM node:18 AS frontend
+
+WORKDIR /vue
+
+COPY vue/package.json vue/package-lock.json ./
+RUN npm install
+
+COPY vue/ .
+
+FROM python:3.12-slim
+
+WORKDIR /
+
+# Copy backend and frontend files
+#COPY ./backend /backend
+#COPY --from=frontend /vue /vue
+#COPY start.sh /start.sh
+
+# Ensure npm, uvicorn, and FastAPI are installed in the final stage
+COPY /vue/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install npm globally
+RUN apt-get update && apt-get install -y nodejs npm screen
+
+# Default command to run the computing script
+CMD ["npm", "run", "dev"]
