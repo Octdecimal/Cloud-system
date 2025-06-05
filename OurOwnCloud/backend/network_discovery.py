@@ -1,7 +1,7 @@
 import socket
 import threading
 import time
-from task_status import get_waiting_tasks, update_task_status
+from task_status import get_ready_tasks, update_task_status
 from task_assign import assign_task
 from node_registry import discovered_nodes, add_node, get_nodes, set_node_status
 from fastapi import APIRouter
@@ -37,7 +37,7 @@ def select_best_node():
 
 def scheduler_loop():
 	while True:
-		for task_id in get_waiting_tasks():
+		for task_id in get_ready_tasks():
 			node_ip = select_best_node()
 			if not node_ip:
 				break
@@ -145,16 +145,6 @@ def countdown_nodes():
 				print(f"[DISCOVERY] Node {ip} is no longer available.")
 				del nodes[ip]
 
-def assign_2_node():
-	while True:
-		for ip in list(nodes.keys()):
-			usable_node = get_nodes()
-			print(f"[DISCOVERY] Usable nodes: {usable_node}")
-			if ip in usable_node:
-				assign_task(ip)
-
-		time.sleep(1)
-
 def start_discovery(callback):
 	threading.Thread(target=scheduler_loop, daemon=True).start()
 	threading.Thread(target=broadcast_ip, daemon=True).start()
@@ -162,7 +152,6 @@ def start_discovery(callback):
 	threading.Thread(target=listen_for_completions, daemon=True).start()
 	threading.Thread(target=listen_for_node_info, daemon=True).start()
 	threading.Thread(target=countdown_nodes, daemon=True).start()
-	threading.Thread(target=assign_2_node, daemon=True).start()
 
 router = APIRouter()
 @router.get("/node_usage")

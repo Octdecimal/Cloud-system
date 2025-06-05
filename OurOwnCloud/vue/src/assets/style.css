@@ -1,0 +1,65 @@
+body {
+  margin: 0;
+  font-family: "Noto Sans TC", sans-serif;
+  background: #f5f7fa;
+  color: #333;
+}
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #2c3e50;
+}
+.card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-bottom: 30px;
+}
+button {
+  background: #42b983;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+button:disabled {
+  background: #bbb;
+  cursor: not-allowed;
+}
+button + button {
+  margin-left: 10px;
+}
+input[type="file"] {
+  display: none;
+}
+.file-label {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #409eff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th, .table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+.table th {
+  background: #f0f0f0;
+}
+.status-waiting { color: #999; }
+.status-assigned { color: #409eff; }
+.status-done { color: #67c23a; }

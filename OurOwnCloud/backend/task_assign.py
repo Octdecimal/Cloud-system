@@ -1,7 +1,7 @@
 import os
 import socket
 from node_registry import  set_node_status
-from task_status import update_task_status, get_waiting_tasks
+from task_status import update_task_status, get_ready_tasks
 
 TASK_INPUT_DIR = "/uploads"
 ASSIGN_PORT = 50002

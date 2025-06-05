@@ -7,20 +7,9 @@ router = APIRouter()
 
 @router.post("/start/{task_id}")
 async def start_task(task_id: str):
+    # 1. Task 是否存在？
     if task_id not in task_queue:
-        raise HTTPException(404, "Task not found")
-    if task_queue[task_id]["status"] != "waiting":
-        raise HTTPException(400, "只能啟動 waiting 任務")
-    # 選一個空閒節點
-    nodes = get_nodes(only_available=True)
-    if not nodes:
-        raise HTTPException(503, "目前無可用節點")
-    node_ip = nodes[0]
-    # 派工
-    ok = assign_task(task_id, node_ip)
-    if not ok:
-        raise HTTPException(500, "派工失敗")
-    # 更新狀態
-    set_node_status(node_ip, True)
-    update_task_status(task_id, "assigned", node_ip)
-    return {"message": f"已分派到 {node_ip}"}
+        raise HTTPException(status_code=404, detail="找不到此任務")
+    #2. 由 new → ready，交給 scheduler
+    update_task_status(task_id, 'ready')
+    return {'message':'已經加入排程'}

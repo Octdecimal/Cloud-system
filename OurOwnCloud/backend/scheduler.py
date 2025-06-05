@@ -1,11 +1,11 @@
 import threading, time
-from task_status import get_waiting_tasks, update_task_status
+from task_status import get_ready_tasks, update_task_status
 from node_registry import get_nodes, set_node_status
 from task_assign import assign_task
 
 def _schedule_loop():
    while True:
-	   for task_id in get_waiting_tasks():
+	   for task_id in get_ready_tasks():
 		   # 選一個空閒節點
 		   nodes = get_nodes(only_available=True)
 		   if not nodes:
