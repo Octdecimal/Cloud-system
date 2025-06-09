@@ -1,0 +1,6 @@
+docker cp ./demo2 client_1:/demo2 && docker cp ./demo2 client_2:/demo2 && docker cp ./demo2 client_3:/demo2
+
+
+cd demo2 && chmod 777 *.py
+
+cd .. && rm -rf demo2 && clear
